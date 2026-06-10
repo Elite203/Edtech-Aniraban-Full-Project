@@ -16,7 +16,7 @@ $host = '193.203.184.228';
 //$host = 'localhost';
 $dbname = 'u958214831_Admin_Panel';
 $username = 'u958214831_anirban';
-$password = 'TBjP;y$^2Vj';
+$password = '';
 
 try {
     $options = [
