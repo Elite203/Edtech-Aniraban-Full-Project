@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Ready for the Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- SUMMARY TABLE --- */
+        .exam-table {
+            width: 100%;
+            max-width: 900px;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .exam-table th, .exam-table td {
+            border: 1px solid #e0e0e0; /* Light border */
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .exam-table th {
+            background-color: #f0f0f0; /* Light gray header */
+            font-weight: bold;
+            color: #000;
+        }
+
+        .exam-table td:nth-child(2) {
+            text-align: left; /* Align Subject column to left */
+        }
+
+        /* --- INSTRUCTION TEXT (Blue/Red) --- */
+        .instruction-paragraph {
+            max-width: 900px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #0000ff; /* Blue */
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        .text-red {
+            color: #ff0000;
+        }
+
+        /* --- IMPORTANT INSTRUCTION BOX (Red Border) --- */
+        .alert-box {
+            width: 100%;
+            max-width: 850px;
+            border: 2px solid #ff3333;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.1); /* Subtle red glow */
+            border-radius: 5px;
+            padding: 20px 40px;
+            box-sizing: border-box;
+            background-color: #fff;
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: center;
+            color: #cc0000; /* Darker red for title */
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .warning-icon {
+            font-size: 28px;
+            margin-right: 10px;
+            /* Using unicode triangle */
+        }
+
+        .alert-subtext {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: #000;
+        }
+
+        .alert-list {
+            list-style-type: disc;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #000;
+            padding-left: 20px;
+        }
+        
+        .alert-list li {
+            margin-bottom: 8px;
+        }
+
+        /* Bold/Caps specific to the last point */
+        .emphasis {
+            font-weight: bold;
+        }
+
+        /* --- BOTTOM BUTTON --- */
+        .footer-action {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .click-label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .arrow {
+            color: #0000ff;
+            font-size: 18px;
+        }
+
+        .get-ready-btn {
+            background: linear-gradient(to bottom, #33b5e5 0%, #0099cc 100%); /* Blue gradient */
+            border: 1px solid #006699;
+            color: white;
+            padding: 8px 30px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            text-shadow: 1px 1px 0px #005580;
+        }
+
+        .get-ready-btn:hover {
+            background: linear-gradient(to bottom, #0099cc 0%, #007399 100%);
+        }
+
+    </style>
+</head>
+<body>
+
+    <table class="exam-table">
+        <thead>
+            <tr>
+                <th>Section</th>
+                <th>Subject</th>
+                <th>Number of Questions</th>
+                <th>Maximum Marks</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>PART-A</td>
+                <td>English Language (Basic Knowledge)</td>
+                <td>25</td>
+                <td>50</td>
+            </tr>
+            <tr>
+                <td>PART-B</td>
+                <td>General Intelligence</td>
+                <td>25</td>
+                <td>50</td>
+            </tr>
+            <tr>
+                <td>PART-C</td>
+                <td>Quantitative Aptitude (Basic Arithmetic Skill)</td>
+                <td>25</td>
+                <td>50</td>
+            </tr>
+            <tr>
+                <td>PART-D</td>
+                <td>General Awareness</td>
+                <td>25</td>
+                <td>50</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="instruction-paragraph">
+        Once you click the <span class="text-red">'Get Ready for the Test'</span> button below, the next page will display the <span class="text-red">Start the Test</span> button. When you click <span class="text-red">Start the Test</span>, the test gets loaded on the screen and the timer will begin. And you will get the maximum allotted time to complete the test. The remaining time will be shown at the top-right corner of the screen.
+    </div>
+
+    <div class="alert-box">
+        <div class="alert-header">
+            <span class="warning-icon">&#9888;</span> Important Instruction:
+        </div>
+        
+        <div class="alert-subtext">In case of any technical issue,</div>
+        
+        <ul class="alert-list">
+            <li>Please do not panic.</li>
+            <li>Raise your hand immediately to inform the invigilator.</li>
+            <li>You may be re-assigned to another system immediately, if required.</li>
+            <li>Please be assured that you will <span class="emphasis">NOT LOSE</span> any Examination <span class="emphasis">DATA or TIME</span>, as all progress is securely saved on the server.</li>
+            <li>Once the test is resumed, the <span class="emphasis">EXAM TIMER WILL START FROM THE EXACT POINT OF DISRUPTION</span>, and all your <span class="emphasis">PREVIOUSLY SAVED ANSWERS WILL REMAIN INTACT.</span></li>
+        </ul>
+    </div>
+
+    <div class="footer-action">
+        <span class="click-label">Click here</span>
+        <span class="arrow">&rarr;</span>
+        <button class="get-ready-btn" onclick="alert('System Ready!')">Get ready for the Test</button>
+    </div>
+
+</body>
+</html>

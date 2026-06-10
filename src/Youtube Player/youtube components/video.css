@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Cinematic Video Player Design System */
+
+/* Cinematic Video Player Design System - Refined to avoid global theme pollution */
+
+:root {
+  /* Video Player Specific variables ensured they don't conflict with global theme */
+  --player-bg: 220 20% 4%;
+  --player-radius: 1rem;
+  --control-bg: 220 20% 12%;
+  --control-border: 220 15% 25%;
+  --control-foreground: 0 0% 95%;
+  --control-accent: 4 90% 58%;
+  --control-hover: 4 90% 65%;
+  --player-slider-track: 220 15% 20%;
+}
+
+@layer components {
+  .bg-player {
+    background-color: hsl(var(--player-bg));
+  }
+  .rounded-player {
+    border-radius: var(--player-radius);
+  }
+  .control-button {
+    @apply p-2 rounded-lg text-control-foreground hover:text-control-accent 
+           hover:bg-white/10 transition-all duration-200 active:scale-95;
+  }
+}
+
+@layer utilities {
+  .shadow-glow {
+    box-shadow: 0 0 40px hsl(var(--control-accent) / 0.4),
+                0 0 80px hsl(var(--control-accent) / 0.2);
+  }
+}
+
+/* Hide YouTube branding and overlays */
+#youtube-player {
+  pointer-events: none;
+}
+
+/* Cover for YouTube's big red play button */
+.youtube-cover::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90px;
+  height: 70px;
+  background: #0d0f14;
+  z-index: 5;
+  border-radius: 8px;
+  box-shadow: 0 0 40px 20px #0d0f14;
+}
+
+.youtube-cover.is-playing::after {
+  display: none;
+}
+
+/* Custom slider styling for video player */
+[data-slot="slider-track"] {
+  background: hsl(var(--player-slider-track)) !important;
+  height: 4px !important;
+}
+
+[data-slot="slider-range"] {
+  background: hsl(var(--control-accent)) !important;
+}
+
+[data-slot="slider-thumb"] {
+  background: hsl(var(--control-foreground)) !important;
+  border: 2px solid hsl(var(--control-accent)) !important;
+  width: 14px !important;
+  height: 14px !important;
+  transition: transform 0.15s ease !important;
+}
+
+[data-slot="slider-thumb"]:hover {
+  transform: scale(1.2) !important;
+}

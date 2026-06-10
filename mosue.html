@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restricted Mouse Movement Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow: hidden; /* Prevent scrolling */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Hide the real cursor when pointer is locked. */
+        body.locked {
+            cursor: none;
+        }
+
+        #virtual-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0; 
+            height: 0;
+            pointer-events: none; /* Let clicks pass through to elements below */
+            z-index: 10000;
+            display: none; /* Hidden by default */
+        }
+
+        /* The visual representation of the cursor */
+        .cursor-icon {
+            width: 24px;
+            height: 24px;
+            /* Simple arrow SVG */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5.5 3.2L18 14.5L11.5 15.5L14.5 21.5L12 22.5L9 16.5L5.5 20V3.2Z' fill='black' /%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 20px;
+            background: #2d2d2d;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        h1 { margin-top: 0; }
+
+        .btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn:hover { background: #4f46e5; }
+
+        .btn-danger {
+            background: #ef4444;
+            margin-top: 10px;
+        }
+        
+        .btn-danger:hover { background: #dc2626; }
+
+        .status {
+            margin-top: 20px;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .top-barrier {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: rgba(255, 0, 0, 0.2);
+            border-bottom: 1px dashed red;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffaaaa;
+            font-weight: bold;
+            pointer-events: none;
+        }
+
+        /* Violation Overlay Style */
+        #violation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 20000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        #violation-overlay h2 {
+            color: #ef4444;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Visual indicator of the "Forbidden Zone" -->
+    <div class="top-barrier">
+        NO MOUSE ZONE (Prevents Browser Dropdown)
+    </div>
+
+    <!-- The Fake Cursor Element -->
+    <div id="virtual-cursor">
+        <div class="cursor-icon"></div>
+    </div>
+
+    <!-- Violation Overlay -->
+    <div id="violation-overlay">
+        <h2>⚠️ SECURITY VIOLATION</h2>
+        <p style="font-size: 1.2em;">You attempted to leave the secure exam environment.</p>
+        <p>Your actions have been logged.</p>
+        <button id="return-btn" class="btn" style="background: #ef4444;">RETURN TO EXAM</button>
+    </div>
+
+    <div class="container">
+        <h1>Restricted Cursor Demo</h1>
+        <p>This demo uses the <b>Pointer Lock API</b> to hide your real mouse and simulate a virtual one.</p>
+        <p>The virtual cursor is mathematically clamped so it <b>cannot enter the top 50px</b> of the screen.</p>
+        
+        <button id="start-btn" class="btn">🔒 ENTER SECURE EXAM MODE</button>
+        
+        <div id="exam-controls" style="display:none; margin-top: 20px;">
+            <p style="color: #4ade80;">Secure Mode Active</p>
+            <p>Try pressing ESC. It should be blocked or trigger a violation.</p>
+            <button id="test-click-btn" class="btn" style="background: #10b981;">Test Click Here</button>
+            <br>
+            <button id="exit-btn" class="btn btn-danger">Exit Mode (Properly)</button>
+        </div>
+
+        <p class="status" id="status-text">Status: Normal Mouse</p>
+    </div>
+
+    <script>
+        const virtualCursor = document.getElementById('virtual-cursor');
+        const startBtn = document.getElementById('start-btn');
+        const exitBtn = document.getElementById('exit-btn');
+        const testClickBtn = document.getElementById('test-click-btn');
+        const examControls = document.getElementById('exam-controls');
+        const statusText = document.getElementById('status-text');
+        const violationOverlay = document.getElementById('violation-overlay');
+        const returnBtn = document.getElementById('return-btn');
+
+        // Virtual position state
+        let cursorX = window.innerWidth / 2;
+        let cursorY = window.innerHeight / 2;
+        let isIntentionalExit = false;
+        
+        // Configuration
+        const TOP_BARRIER_HEIGHT = 50; 
+
+        // 1. Enter Fullscreen and Lock Pointer
+        startBtn.addEventListener('click', async () => {
+            enterSecureMode();
+        });
+
+        // 2. Logic to Enter Secure Mode
+        async function enterSecureMode() {
+            try {
+                isIntentionalExit = false;
+                await document.documentElement.requestFullscreen();
+                await document.body.requestPointerLock();
+                
+                // Attempt to lock keyboard (All keys if possible, or just Escape)
+                if (navigator.keyboard && navigator.keyboard.lock) {
+                    try {
+                        // Passing no arguments locks ALL keys supported
+                        await navigator.keyboard.lock(); 
+                        console.log("Keyboard locked (All keys)");
+                    } catch (e) {
+                        console.warn("Keyboard lock failed:", e);
+                    }
+                }
+                
+                violationOverlay.style.display = 'none';
+            } catch (err) {
+                console.error("Error entering secure mode:", err);
+            }
+        }
+
+        // 3. Return Button (Inside Violation Overlay)
+        returnBtn.addEventListener('click', () => {
+            enterSecureMode();
+        });
+
+        // 4. Intentional Exit Logic
+        exitBtn.addEventListener('click', () => {
+            isIntentionalExit = true;
+            document.exitPointerLock();
+            if (navigator.keyboard && navigator.keyboard.unlock) {
+                navigator.keyboard.unlock();
+            }
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+        });
+
+        testClickBtn.addEventListener('click', () => {
+            alert("Clicked successfully via Virtual Cursor!");
+        });
+
+        // 5. Detect Forced Exit (Holding ESC)
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                // If we are NOT in fullscreen, and it wasn't intentional
+                if (!isIntentionalExit) {
+                    // Trigger Violation Overlay immediately
+                    violationOverlay.style.display = 'flex';
+                    // Optional: You could ensure pointer lock is also removed to let them click 'Return'
+                    document.exitPointerLock(); 
+                }
+            }
+        });
+
+        // 6. Handle Pointer Lock Change Events
+        document.addEventListener('pointerlockchange', () => {
+            if (document.pointerLockElement === document.body) {
+                // Locked
+                document.body.classList.add('locked');
+                virtualCursor.style.display = 'block';
+                startBtn.style.display = 'none';
+                examControls.style.display = 'block';
+                statusText.innerText = "Status: 🔒 LOCKED";
+                
+                // Reset cursor center
+                cursorX = window.innerWidth / 2;
+                cursorY = window.innerHeight / 2;
+                updateCursorVisual();
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mousedown', onMouseDown);
+                document.addEventListener('mouseup', onMouseUp);
+                document.addEventListener('keydown', blockEscapeKey); 
+            } else {
+                // Unlocked
+                document.body.classList.remove('locked');
+                virtualCursor.style.display = 'none';
+                
+                // Only reset UI if it was intentional. If violation, overlay handles it.
+                if (isIntentionalExit) {
+                    startBtn.style.display = 'inline-block';
+                    examControls.style.display = 'none';
+                    statusText.innerText = "Status: Normal Mouse";
+                }
+
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mousedown', onMouseDown);
+                document.removeEventListener('mouseup', onMouseUp);
+                document.removeEventListener('keydown', blockEscapeKey);
+            }
+        });
+
+        function blockEscapeKey(e) {
+            // Aggressively block Escape and F11
+            if (e.key === 'Escape' || e.key === 'F11') {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        }
+
+        // 7. Core Mouse Logic
+        function onMouseMove(e) {
+            cursorX += e.movementX;
+            cursorY += e.movementY;
+
+            // X Axis
+            cursorX = Math.max(0, Math.min(cursorX, window.innerWidth));
+            // Y Axis - BLOCKED TOP ZONE
+            cursorY = Math.max(TOP_BARRIER_HEIGHT, Math.min(cursorY, window.innerHeight));
+
+            updateCursorVisual();
+        }
+
+        function updateCursorVisual() {
+            virtualCursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
+        }
+
+        function onMouseDown(e) {
+            virtualCursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) scale(0.9)`;
+            const target = document.elementFromPoint(cursorX, cursorY);
+            if (target && target !== virtualCursor) {
+                target.focus();
+                target.click();
+            }
+        }
+
+        function onMouseUp() {
+            virtualCursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) scale(1)`;
+        }
+
+    </script>
+</body>
+</html>

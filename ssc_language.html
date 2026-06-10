@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSC Online Computer Based Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* --- HEADING --- */
+        .page-title {
+            color: #003399; /* Dark Blue */
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* --- SELECTION BOX (Table Structure) --- */
+        .selection-table {
+            border-collapse: collapse;
+            border: 1px solid #777;
+            width: 600px;
+            background-color: #fff;
+        }
+
+        .selection-table td {
+            border: 1px solid #777;
+            padding: 8px 15px;
+            vertical-align: middle;
+        }
+
+        /* Left Cell: Label */
+        .label-cell {
+            font-weight: bold;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        /* Right Cell: Dropdown */
+        .input-cell {
+            width: 150px;
+            text-align: center;
+        }
+
+        select {
+            padding: 2px 5px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* --- BUTTON --- */
+        .btn-container {
+            margin-top: 20px;
+        }
+
+        .continue-btn {
+            background-color: #003366; /* Dark Navy Blue */
+            color: white;
+            border: 2px solid #002244;
+            padding: 5px 20px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+        }
+
+        .continue-btn:hover {
+            background-color: #002244;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="page-title">SSC Online Computer Based Test</div>
+
+    <table class="selection-table">
+        <tr>
+            <td class="label-cell">Select Preferred Language to Display Questions</td>
+            <td class="input-cell">
+                <select>
+                    <option>English</option>
+                    <option>Hindi</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+
+    <div class="btn-container">
+        <button class="continue-btn" onclick="alert('Starting Test...')">Continue >></button>
+    </div>
+
+</body>
+</html>

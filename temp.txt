@@ -1,0 +1,1075 @@
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import axios from "axios";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import QuestionSection from "../components/exam/QuestionSection";
+import SidebarSection from "../components/exam/SidebarSection";
+import SubmitModal from "../components/exam/SubmitModal";
+import QuitModal from "../components/exam/QuitModal";
+import WarningModal from "../components/exam/WarningModal";
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+const ExamQuestionPage = () => {
+  const { course_id, exam_set_id, set_number } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialLang = queryParams.get("lang") || "en";
+
+  const [questions, setQuestions] = useState([]);
+  const [filteredQuestions, setFilteredQuestions] = useState([]);
+  const [language, setLanguage] = useState(initialLang);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [unanswered, setUnanswered] = useState([]);
+  const [reviewed, setReviewed] = useState({});
+  const [visited, setVisited] = useState(new Set());
+  const [mainTimer, setMainTimer] = useState(0);
+  const [questionTimers, setQuestionTimers] = useState({});
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(typeof window !== "undefined" ? window.innerWidth >= 768 : true);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [showQuitModal, setShowQuitModal] = useState(false);
+  const [examTitle, setExamTitle] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [user, setUser] = useState({ name: "", photo: "" });
+  const [subjects, setSubjects] = useState([]);
+  const [activeSubject, setActiveSubject] = useState("");
+  const [globalQuestionIndex, setGlobalQuestionIndex] = useState(0);
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [submittedSubjects, setSubmittedSubjects] = useState([]);
+  const [setName, setSetName] = useState("");
+  const [showSubjectSwitchWarning, setShowSubjectSwitchWarning] = useState(false);
+  
+  const [timeConfig, setTimeConfig] = useState({
+    type: null, // 'overall' or 'subject_wise'
+    globalTime: null,
+    subjectTimes: {},
+    currentSubjectTime: null,
+    isSubjectWiseMode: false
+  });
+
+  const containerRef = useRef(null);
+  const timerRef = useRef(null);
+  const audioRef = useRef(null);
+  const lastFiveMinutesPlayed = useRef(false);
+  const lastMinutePlayed = useRef(false);
+  const initialTimeSet = useRef(false);
+
+  const formatTime = (seconds) => {
+    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const s = String(seconds % 60).padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
+  const playAudioAlert = () => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3');
+    }
+    audioRef.current.play().catch((err) => console.log("Audio error:", err));
+  };
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen?.().then(() => setIsFullscreen(true));
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false));
+    }
+  };
+
+  const toggleSidebar = () => {
+    setSidebarVisible((prev) => !prev); 
+  };
+
+  const fetchTimeConfigurations = async () => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}api/get_exam_time_config.php?exam_set_id=${exam_set_id}`
+      );
+      
+      if (response.data.success) {
+        const { type, total_time_minutes, subjects: subjectsData } = response.data;
+        
+        if (type === 'overall') {
+          // Overall time defined - all subjects accessible
+          console.log('📋 Overall time mode:', total_time_minutes, 'minutes');
+          setTimeConfig({
+            type: 'overall',
+            globalTime: total_time_minutes * 60,
+            subjectTimes: {},
+            currentSubjectTime: null,
+            isSubjectWiseMode: false
+          });
+          setMainTimer(total_time_minutes * 60);
+        } else if (type === 'subject_wise') {
+          // Subject-wise time - restrict subject access
+          console.log('📋 Subject-wise time mode:', subjectsData);
+          const subjectTimes = {};
+          subjectsData.forEach(subject => {
+            subjectTimes[subject.name.toUpperCase()] = subject.time_minutes * 60;
+          });
+          
+          setTimeConfig({
+            type: 'subject_wise',
+            globalTime: null,
+            subjectTimes,
+            currentSubjectTime: null,
+            isSubjectWiseMode: true
+          });
+          
+          if (activeSubject && subjectTimes[activeSubject]) {
+            setMainTimer(subjectTimes[activeSubject]);
+            setTimeConfig(prev => ({ ...prev, currentSubjectTime: subjectTimes[activeSubject] }));
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching time configurations:", err);
+      setMainTimer(60 * 60);
+    }
+  };
+
+  const updateTimerForSubject = (subject) => {
+    if (timeConfig.globalTime) return; 
+    
+    const subjectTime = timeConfig.subjectTimes[subject];
+    if (subjectTime) {
+      setMainTimer(subjectTime);
+      setTimeConfig(prev => ({ ...prev, currentSubjectTime: subjectTime }));
+      lastFiveMinutesPlayed.current = false;
+      lastMinutePlayed.current = false;
+    }
+  };
+
+  useEffect(() => {
+    const loadSavedState = () => {
+      const savedState = localStorage.getItem(`examState_${course_id}_${exam_set_id}_${set_number}`);
+      if (savedState) {
+        try {
+          const state = JSON.parse(savedState);
+          setAnswers(state.answers || {});
+          setUnanswered(state.unanswered || []);
+          setReviewed(state.reviewed || {});
+          setVisited(new Set(state.visited || []));
+          setQuestionTimers(state.questionTimers || {});
+          setMainTimer(state.mainTimer || 0);
+          setCurrentIndex(state.currentIndex || 0);
+          setActiveSubject(state.activeSubject || "");
+          setGlobalQuestionIndex(state.globalQuestionIndex || 0);
+          setSubmittedSubjects(state.submittedSubjects || []);
+        } catch (e) {
+          console.error("Failed to parse saved state", e);
+        }
+      }
+    };
+
+    const fetchUserData = () => {
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        navigate("/examlogin");
+        return;
+      }
+      const userData = JSON.parse(storedUser);
+      setUser({
+        name: userData.name || "Guest",
+        photo: userData.image || `${BASE_URL}api/get_student_photo.php?id=${userData.id}`,
+      });
+    };
+
+    const fetchQuestions = async () => {
+      setIsLoading(true);
+      try {
+        console.log(`📚 Fetching questions for exam_set_id: ${exam_set_id}`);
+
+        // Fetch from get_questions.php with exam_set_id filtering and subject names
+        const response = await axios.get(
+          `${BASE_URL}api/get_questions.php?exam_set_id=${exam_set_id}`
+        );
+
+        if (response.data.success && response.data.data && response.data.data.length > 0) {
+          console.log(`✅ Fetched ${response.data.data.length} questions from API`);
+          
+          const questionsData = response.data.data.map((q) => ({
+            id: q.id,
+            subject: q.subject || "General",
+            question: q.question_english || q.question || "No question available",
+            option_a: q.option_a_english || q.option_a || "",
+            option_b: q.option_b_english || q.option_b || "",
+            option_c: q.option_c_english || q.option_c || "",
+            option_d: q.option_d_english || q.option_d || "",
+            option_e: q.option_e_english || q.option_e || "",
+            correct_option: q.correct_option || "",
+            content: q.passage_english || q.content || "",
+            detail: q.solution_english || q.detail || "",
+            question_image_url: q.question_image_url || null,
+            question_hi: q.question_hindi || q.question_hi || "",
+            option_a_hi: q.option_a_hindi || q.option_a_hi || "",
+            option_b_hi: q.option_b_hindi || q.option_b_hi || "",
+            option_c_hi: q.option_c_hindi || q.option_c_hi || "",
+            option_d_hi: q.option_d_hindi || q.option_d_hi || "",
+            option_e_hi: q.option_e_hindi || q.option_e_hi || "",
+            content_hi: q.passage_hindi || q.content_hi || "",
+            detail_hi: q.solution_hindi || q.detail_hi || ""
+          }));
+
+          setQuestions(questionsData);
+          
+          // Extract unique subjects in order they appear
+          const uniqueSubjects = [...new Set(questionsData.map((q) => q.subject.toUpperCase()))];
+          setSubjects(uniqueSubjects);
+          setActiveSubject(uniqueSubjects[0] || "");
+          setIsLoading(false);
+        } else {
+          setError("No questions available");
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error("❌ Fetch error:", err);
+        setError("Failed to load questions.");
+        setIsLoading(false);
+      }
+    };
+
+    const fetchSetName = async () => {
+      try {
+        console.log(`📋 Fetching set name for exam_set_id: ${exam_set_id}`);
+        const response = await axios.get(
+          `${BASE_URL}api/get_exam_sets.php?course_id=${course_id}`
+        );
+        
+        if (response.data.success && response.data.exam_sets) {
+          const currentSet = response.data.exam_sets.find(set => set.id === parseInt(exam_set_id));
+          if (currentSet && currentSet.set_name) {
+            console.log(`✅ Set name found: ${currentSet.set_name}`);
+            setSetName(currentSet.set_name);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching set name:", err);
+      }
+    };
+
+    loadSavedState();
+    fetchUserData();
+    fetchQuestions();
+    fetchTimeConfigurations();
+    fetchSetName();
+  }, [course_id, exam_set_id, set_number, navigate, language]);
+
+  useEffect(() => {
+    if (activeSubject && !initialTimeSet.current && timeConfig.subjectTimes[activeSubject] && !timeConfig.globalTime) {
+      updateTimerForSubject(activeSubject);
+      initialTimeSet.current = true;
+    }
+  }, [activeSubject, timeConfig]);
+
+  useEffect(() => {
+    if (activeSubject && !timeConfig.globalTime) {
+      updateTimerForSubject(activeSubject);
+    }
+  }, [activeSubject]);
+
+  // Screenshot and Screen Recording Prevention
+  useEffect(() => {
+    const showBlockMessage = () => {
+      const existingToast = document.getElementById('screen-protect-toast');
+      if (existingToast) {
+        existingToast.remove();
+      }
+      
+      const toast = document.createElement('div');
+      toast.id = 'screen-protect-toast';
+      toast.textContent = '🔒 Screenshot and Screen Recording Disabled';
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ef4444;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        z-index: 9999;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        animation: slideDown 0.3s ease-out;
+        font-size: 14px;
+      `;
+      
+      // Add animation
+      if (!document.getElementById('screen-protect-style')) {
+        const style = document.createElement('style');
+        style.id = 'screen-protect-style';
+        style.textContent = `
+          @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+          }
+          @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(0); opacity: 1; }
+            to { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+          }
+          .screen-protect-exit {
+            animation: slideUp 0.3s ease-out forwards;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.classList.add('screen-protect-exit');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    };
+
+    // Disable right-click context menu
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+      showBlockMessage();
+      return false;
+    };
+
+    // Disable keyboard shortcuts
+    const handleKeyDown = (e) => {
+      const isCtrl = e.ctrlKey || e.metaKey;
+      const isShift = e.shiftKey;
+      const isAlt = e.altKey;
+      const key = e.key.toLowerCase();
+      const keyCode = e.keyCode;
+
+      let shouldBlock = false;
+      let showMessage = true;
+
+      // Print Screen variations
+      if (key === 'printscreen' || keyCode === 44) {
+        shouldBlock = true;
+        showMessage = true;
+      }
+
+      // Windows Key combinations (Shift+S, G, etc.)
+      if (isShift && key === 's') {
+        shouldBlock = true;
+        showMessage = true;
+      }
+      if (key === 'g' && !isCtrl && !isAlt) {
+        shouldBlock = true;
+        showMessage = true;
+      }
+
+      // F1 to F12 (all function keys)
+      const fKeyMatch = key.match(/^f(\d+)$/);
+      if (fKeyMatch) {
+        shouldBlock = true;
+        showMessage = false;
+      }
+
+      // Ctrl+Shift combinations (Dev Tools)
+      if (isCtrl && isShift) {
+        if (['c', 'k', 'i', 'j', 'w', 'r'].includes(key)) {
+          shouldBlock = true;
+          showMessage = false;
+        }
+      }
+
+      // Ctrl+Shift+Escape
+      if (isCtrl && isShift && key === 'escape') {
+        shouldBlock = true;
+        showMessage = false;
+      }
+
+      // Alt+Ctrl+Delete
+      if (isAlt && isCtrl && key === 'delete') {
+        shouldBlock = true;
+        showMessage = false;
+      }
+
+      // Alt+F4
+      if (isAlt && key === 'f4') {
+        shouldBlock = true;
+        showMessage = false;
+      }
+
+      // Alt+F1 to Alt+F12
+      if (isAlt && fKeyMatch) {
+        shouldBlock = true;
+        showMessage = false;
+      }
+
+      // Ctrl+Alt combinations
+      if (isCtrl && isAlt) {
+        if (['delete', 'escape', 'tab'].includes(key) || fKeyMatch) {
+          shouldBlock = true;
+          showMessage = false;
+        }
+      }
+
+      // Windows/Meta key combinations
+      if (e.metaKey && !isCtrl && !isAlt) {
+        if (['shift', 'control', 'alt'].includes(key)) {
+          shouldBlock = true;
+          showMessage = false;
+        }
+      }
+
+      // Tab key combinations for window switching
+      if ((isCtrl || e.metaKey) && key === 'tab') {
+        shouldBlock = true;
+        showMessage = false;
+      }
+
+      // Block Escape key (might be used to exit fullscreen)
+      if (key === 'escape') {
+        shouldBlock = false;
+      }
+
+      if (shouldBlock) {
+        e.preventDefault();
+        if (showMessage) {
+          showBlockMessage();
+        }
+        return false;
+      }
+    };
+
+    // Prevent drag and drop
+        if (isCtrl && isShift && e.key === 'u') {
+        e.preventDefault();
+        return false;
+      }
+
+      // Block Ctrl+Shift+O (Open File)
+        if (isCtrl && isShift && e.key === 'o') {
+        e.preventDefault();
+        return false;
+      }
+
+      // Block Ctrl+Shift+A (Accessibility Inspector)
+        if (isCtrl && isShift && e.key === 'a') {
+        e.preventDefault();
+        return false;
+      }
+
+      // Block Ctrl+Shift+D (Toggle Dev Tools Docking)
+        if (isCtrl && isShift && e.key === 'd') {
+        e.preventDefault();
+        return false;
+      }
+
+      // Block Ctrl+Shift+E (Emulator)
+      if (isCtrl && isShift && e.key === 'e') {
+        e.preventDefault();
+        return false;
+      }
+
+      // Block Ctrl+Shift+G (Find in Files)
+        if (isCtrl && isShift && e.key === 'g') {
+        e.preventDefault();
+        return false;
+      }
+
+      // Block Ctrl+Shift+J (Dev Tools Console)
+        if (isCtrl && isShift && e.key === 'j') {
+        e.preventDefault();
+        return false;
+      }
+
+      // Block Ctrl+Shift+L (Command Menu)
+        if (isCtrl && isShift && e.key === 'l') {
+        e.preventDefault();
+        return false;
+      }
+
+      // Block Ctrl+Shift+B (Toggle Bookmarks Bar)
+        if (isCtrl && isShift && e.key === 'b') {
+        e.preventDefault();
+        return false;
+      }
+
+       // Block Ctrl+Shift+N (New Window)
+        if (isCtrl && isShift && e.key === 'n') {
+        e.preventDefault();
+        return false;
+      }
+
+       // Block Ctrl+Shift+O (Open File)
+        if (isCtrl && isShift && e.key === 'm') {
+        e.preventDefault();
+        return false;
+      }
+
+
+      // Block Alt+F12
+      if (isAlt && e.key === 'F12') {
+        e.preventDefault();
+        return false;
+      }
+
+      // Block Cmd+Option+I (Mac)
+      if (isCtrl && isAlt && e.key === 'i') {
+        e.preventDefault();
+        return false;
+      }
+
+      // Block Cmd+Option+U (Mac)
+      if (isCtrl && isAlt && e.key === 'u') {
+        e.preventDefault();
+        return false;
+      }
+
+      // Block Cmd+Shift+3 (Mac Screenshot)
+      if (isCtrl && isShift && e.key === '3') {
+        e.preventDefault();
+        showBlockMessage();
+        return false;
+      }
+
+      // Block Cmd+Shift+4 (Mac Screenshot)
+      if (isCtrl && isShift && e.key === '4') {
+        e.preventDefault();
+        showBlockMessage();
+        return false;
+      }
+    };
+
+    // Disable user select and drag
+    const handleDragStart = (e) => {
+      e.preventDefault();
+      return false;
+    };
+
+    // Prevent screen capture API
+    const preventScreenCapture = () => {
+      if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+        const originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
+        navigator.mediaDevices.getDisplayMedia = async function(...args) {
+          showBlockMessage();
+          throw new Error('Screen capture is disabled');
+        };
+      }
+    };
+
+    // Protect canvas from being captured
+    const protectCanvas = () => {
+      if (HTMLCanvasElement.prototype.toDataURL) {
+        const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
+        HTMLCanvasElement.prototype.toDataURL = function(...args) {
+          showBlockMessage();
+          return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+        };
+      }
+    };
+
+    // Add event listeners
+    document.addEventListener('contextmenu', handleContextMenu, { capture: true });
+    document.addEventListener('keydown', handleKeyDown, { capture: true });
+    document.addEventListener('dragstart', handleDragStart, { capture: true });
+
+    // Apply protections
+    preventScreenCapture();
+    protectCanvas();
+
+    // Disable Inspector element picker
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
+
+    // Cleanup function
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu, { capture: true });
+      document.removeEventListener('keydown', handleKeyDown, { capture: true });
+      document.removeEventListener('dragstart', handleDragStart, { capture: true });
+    };
+  }, []);
+
+  const handleNextQuestion = useCallback(() => {
+    if (currentIndex < filteredQuestions.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  }, [currentIndex, filteredQuestions.length]);
+
+  const handleSubmitCurrentSubject = useCallback(() => {
+    const newSubmittedSubjects = [...submittedSubjects, activeSubject];
+    setSubmittedSubjects(newSubmittedSubjects);
+    
+    const currentSubjectIndex = subjects.indexOf(activeSubject);
+    const nextSubject = subjects.slice(currentSubjectIndex + 1).find(sub => !newSubmittedSubjects.includes(sub));
+    
+    if (nextSubject) {
+      setActiveSubject(nextSubject);
+      setCurrentIndex(0);
+      
+      if (!timeConfig.globalTime) {
+        updateTimerForSubject(nextSubject);
+      }
+    } else {
+      setShowSubmitModal(true);
+    }
+  }, [submittedSubjects, activeSubject, subjects, timeConfig.globalTime]);
+
+  const handleSaveNext = useCallback((selectedOption) => {
+    if (!filteredQuestions[currentIndex]) return;
+    
+    const currentQuestionId = filteredQuestions[currentIndex].id;
+    
+    if (selectedOption) {
+      setAnswers({ ...answers, [currentQuestionId]: selectedOption });
+      setUnanswered(unanswered.filter((id) => id !== currentQuestionId));
+      if (reviewed[currentQuestionId]) {
+        const newReviewed = { ...reviewed };
+        delete newReviewed[currentQuestionId];
+        setReviewed(newReviewed);
+      }
+    } else {
+      if (!unanswered.includes(currentQuestionId)) {
+        setUnanswered([...unanswered, currentQuestionId]);
+      }
+      if (answers[currentQuestionId]) {
+        const newAnswers = { ...answers };
+        delete newAnswers[currentQuestionId];
+        setAnswers(newAnswers);
+      }
+    }
+    
+    handleNextQuestion();
+  }, [answers, currentIndex, filteredQuestions, reviewed, unanswered, handleNextQuestion]);
+
+  const handleReviewNext = useCallback((selectedOption) => {
+    if (!filteredQuestions[currentIndex]) return;
+    
+    const currentQuestionId = filteredQuestions[currentIndex].id;
+    const type = selectedOption ? "reviewedAnswered" : "reviewedUnanswered";
+    
+    setReviewed({ ...reviewed, [currentQuestionId]: type });
+    
+    if (selectedOption) {
+      setAnswers({ ...answers, [currentQuestionId]: selectedOption });
+      setUnanswered(unanswered.filter((id) => id !== currentQuestionId));
+    } else {
+      if (!unanswered.includes(currentQuestionId)) {
+        setUnanswered([...unanswered, currentQuestionId]);
+      }
+      if (answers[currentQuestionId]) {
+        const newAnswers = { ...answers };
+        delete newAnswers[currentQuestionId];
+        setAnswers(newAnswers);
+      }
+    }
+    
+    handleNextQuestion();
+  }, [answers, currentIndex, filteredQuestions, reviewed, unanswered, handleNextQuestion]);
+
+  const handleClearResponse = useCallback(() => {
+    if (!filteredQuestions[currentIndex]) return;
+    
+    const currentQuestionId = filteredQuestions[currentIndex].id;
+    
+    if (answers[currentQuestionId]) {
+      const newAnswers = { ...answers };
+      delete newAnswers[currentQuestionId];
+      setAnswers(newAnswers);
+    }
+    
+    if (!unanswered.includes(currentQuestionId)) {
+      setUnanswered([...unanswered, currentQuestionId]);
+    }
+    
+    if (reviewed[currentQuestionId]) {
+      const newReviewed = { ...reviewed };
+      delete newReviewed[currentQuestionId];
+      setReviewed(newReviewed);
+    }
+  }, [answers, currentIndex, filteredQuestions, reviewed, unanswered]);
+
+  const handleSubjectSwitch = () => setShowSubjectSwitchWarning(true);
+
+  const handleFinalSubmit = useCallback(() => {
+    const userId = JSON.parse(localStorage.getItem("user"))?.id;
+    if (!userId) {
+      alert("User not logged in.");
+      navigate("/examlogin");
+      return;
+    }
+
+    const submissionData = Object.entries(answers).map(([questionId, selected]) => ({
+      user_id: userId,
+      course_id,
+      exam_set_id,
+      set_number,
+      question_id: questionId,
+      selected_option: selected,
+      time_spent: questionTimers[questionId] || 0,
+    }));
+
+    axios.post(`${BASE_URL}api/submit_exam_api.php`, { answers: submissionData })
+      .then((res) => {
+        localStorage.removeItem(`examState_${course_id}_${exam_set_id}_${set_number}`);
+        alert("Test submitted successfully!");
+        setShowSubmitModal(false);
+        navigate(`/exam/result/${course_id}/${exam_set_id}/${set_number}`);
+      })
+      .catch((err) => {
+        console.error("Submission error:", err);
+        alert("Failed to submit test.");
+      });
+  }, [answers, questionTimers, course_id, exam_set_id, set_number, navigate]);
+
+  const handleQuitTest = useCallback(() => {
+    localStorage.removeItem(`examState_${course_id}_${exam_set_id}_${set_number}`);
+    navigate("/");
+  }, [course_id, exam_set_id, set_number, navigate]);
+
+  useEffect(() => {
+    if (activeSubject && questions.length > 0) {
+      const filtered = questions.filter((q) => q.subject.toUpperCase() === activeSubject);
+      setFilteredQuestions(filtered);
+      setCurrentIndex(0);
+
+      let globalIndex = 0;
+      for (const subject of subjects) {
+        if (subject === activeSubject) break;
+        globalIndex += questions.filter((q) => q.subject.toUpperCase() === subject).length;
+      }
+      setGlobalQuestionIndex(globalIndex);
+    }
+  }, [activeSubject, questions, subjects]);
+
+  useEffect(() => {
+    const saveState = () => {
+      const stateToSave = {
+        answers,
+        unanswered,
+        reviewed,
+        visited: Array.from(visited),
+        questionTimers,
+        mainTimer,
+        currentIndex,
+        activeSubject,
+        globalQuestionIndex,
+        submittedSubjects
+      };
+      localStorage.setItem(`examState_${course_id}_${exam_set_id}_${set_number}`, JSON.stringify(stateToSave));
+    };
+
+    const saveInterval = setInterval(saveState, 10000);
+    return () => clearInterval(saveInterval);
+  }, [answers, unanswered, reviewed, visited, questionTimers, mainTimer, currentIndex, activeSubject, globalQuestionIndex, submittedSubjects, course_id, exam_set_id, set_number]);
+
+  useEffect(() => {
+    if (filteredQuestions.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setMainTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          
+          if (!submittedSubjects.includes(activeSubject)) {
+            handleSubmitCurrentSubject();
+          }
+          
+          return 0;
+        }
+        
+        if (prev === 5 * 60 + 1 && !lastFiveMinutesPlayed.current) {
+          playAudioAlert();
+          lastFiveMinutesPlayed.current = true;
+        } else if (prev === 60 + 1 && !lastMinutePlayed.current) {
+          playAudioAlert();
+          lastMinutePlayed.current = true;
+        }
+        
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [filteredQuestions, activeSubject, submittedSubjects, handleSubmitCurrentSubject]);
+
+  useEffect(() => {
+    if (!filteredQuestions[currentIndex]) return;
+    
+    const currentQuestionId = filteredQuestions[currentIndex].id;
+    
+    setVisited((prev) => {
+      const newVisited = new Set(prev);
+      newVisited.add(currentQuestionId);
+      return newVisited;
+    });
+    
+    timerRef.current && clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setQuestionTimers((prev) => ({
+        ...prev,
+        [currentQuestionId]: (prev[currentQuestionId] || 0) + 1,
+      }));
+    }, 1000);
+    
+    return () => clearInterval(timerRef.current);
+  }, [currentIndex, filteredQuestions]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setTabSwitchCount((prev) => prev + 1);
+        if (tabSwitchCount >= 2) {
+          setShowWarningModal(true);
+        }
+      }
+    };
+
+    const handleCopyPaste = (e) => e.preventDefault();
+    const handleContextMenu = (e) => e.preventDefault();
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('copy', handleCopyPaste);
+    document.addEventListener('cut', handleCopyPaste);
+    document.addEventListener('paste', handleCopyPaste);
+    document.addEventListener('contextmenu', handleContextMenu);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('copy', handleCopyPaste);
+      document.removeEventListener('cut', handleCopyPaste);
+      document.removeEventListener('paste', handleCopyPaste);
+      document.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, [tabSwitchCount]);
+
+  const isLastSubject = () => {
+    return subjects.filter(sub => !submittedSubjects.includes(sub)).length <= 1;
+  };
+
+  const canAccessSubject = (subject) => {
+    // In overall time mode, all subjects are accessible
+    if (timeConfig.type === 'overall') {
+      return true;
+    }
+    
+    // In subject-wise mode, only current subject and next unsubmitted subject are accessible
+    if (timeConfig.isSubjectWiseMode) {
+      return (
+        subject === activeSubject ||
+        subject === subjects.find(sub => !submittedSubjects.includes(sub))
+      );
+    }
+    
+    // Fallback to original logic
+    return (
+      subject === activeSubject ||
+      !submittedSubjects.includes(subject) ||
+      subject === subjects.find(sub => !submittedSubjects.includes(sub))
+    );
+  };
+
+  const handleSubjectChange = (newSubject) => {
+    // In overall time mode, allow free switching
+    if (timeConfig.type === 'overall') {
+      setActiveSubject(newSubject);
+      return;
+    }
+    
+    // In subject-wise mode, show warning if trying to switch before time expires
+    if (timeConfig.isSubjectWiseMode && newSubject !== activeSubject) {
+      setShowSubjectSwitchWarning(true);
+      return;
+    }
+    
+    // Otherwise allow switching
+    setActiveSubject(newSubject);
+  };
+
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center dark:bg-gray-900">Loading...</div>;
+  if (error) return <div className="min-h-screen flex items-center justify-center text-red-600 dark:bg-gray-900">{error}</div>;
+  if (questions.length === 0) return <div className="min-h-screen flex items-center justify-center dark:bg-gray-900">No questions available</div>;
+
+  const answeredCount = filteredQuestions.filter((q) => answers[q.id] && !reviewed[q.id]).length;
+  const unansweredCount = filteredQuestions.filter((q) => !answers[q.id] && visited.has(q.id) && !reviewed[q.id]).length;
+  const markedCount = filteredQuestions.filter((q) => reviewed[q.id] === "reviewedUnanswered").length;
+  const notVisitedCount = filteredQuestions.filter((q) => !visited.has(q.id)).length;
+  const answeredMarkedCount = filteredQuestions.filter((q) => reviewed[q.id] === "reviewedAnswered").length;
+  const currentQuestion = filteredQuestions[currentIndex];
+  const currentGlobalQuestionNumber = globalQuestionIndex + currentIndex + 1;
+  const hasContent = currentQuestion?.content;
+
+  return (
+    <div ref={containerRef} className="w-full min-h-screen bg-white dark:bg-gray-900 flex flex-col" style={{ height: '100vh' }}>
+      <audio ref={audioRef} src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" />
+
+      <div className="flex flex-1 overflow-hidden relative">
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="border-b border-gray-300 dark:border-gray-700 flex flex-wrap justify-between items-center px-4 py-3 flex-shrink-0">
+            <div className="font-bold text-lg w-full sm:w-auto dark:text-white">
+              {examTitle} {setName || `SET ${set_number}`}
+            </div>
+            <div className="flex justify-between w-full items-center gap-2 mt-2 sm:justify-center sm:w-auto sm:mt-0">
+              <span className="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded font-bold text-sm dark:text-white w-[150px]">
+                Time Left {formatTime(mainTimer)}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-1 overflow-hidden relative">
+            <div
+              className="flex flex-col overflow-hidden flex-1"
+            >
+          <QuestionSection
+            subjects={subjects}
+            activeSubject={activeSubject}
+            setActiveSubject={setActiveSubject}
+            filteredQuestions={filteredQuestions}
+            currentIndex={currentIndex}
+            setCurrentIndex={setCurrentIndex}
+            currentQuestion={currentQuestion}
+            currentGlobalQuestionNumber={currentGlobalQuestionNumber}
+            language={language}
+            setLanguage={setLanguage}
+            navigate={navigate}
+            answers={answers}
+            handleSaveNext={handleSaveNext}
+            handleReviewNext={handleReviewNext}
+            handleClearResponse={handleClearResponse}
+            questionTimers={questionTimers}
+            globalQuestionIndex={globalQuestionIndex}
+            hasContent={hasContent}
+            submittedSubjects={submittedSubjects}
+            canAccessSubject={canAccessSubject}
+            timeConfig={timeConfig}
+            onSubjectSwitchAttempt={handleSubjectSwitch}
+            mainTimer={mainTimer}
+          />
+            </div>
+
+            <button
+              onClick={toggleSidebar}
+              className="md:hidden fixed top-0 right-4 z-50 text-gray-800 dark:text-white p-1 bg-gray-200 rounded mt-2"
+            >
+              <svg
+                className={`w-6 h-6 ${sidebarVisible ? "hidden" : "block"}`}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z"
+                  clipRule="evenodd"
+                />
+              </svg>
+
+              <svg
+                className={`w-6 h-6 ${sidebarVisible ? "block" : "hidden"}`}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+
+            <button
+              onClick={toggleSidebar}
+              className="absolute top-1/2 transform -translate-y-1/2 right-0 z-10 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white p-2 rounded-l-md border-l border-t border-b border-gray-300 dark:border-gray-600 md:block hidden"
+              style={{ height: '40px', width: '24px' }}
+            >
+              <svg
+                className={`w-4 h-4 transition-transform duration-300 ${sidebarVisible ? 'rotate-0' : 'rotate-180'}`}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <SidebarSection
+          sidebarVisible={sidebarVisible}
+          setSidebarVisible={setSidebarVisible}
+          user={user}
+          answeredCount={answeredCount}
+          unansweredCount={unansweredCount}
+          markedCount={markedCount}
+          notVisitedCount={notVisitedCount}
+          answeredMarkedCount={answeredMarkedCount}
+          currentQuestion={currentQuestion}
+          filteredQuestions={filteredQuestions}
+          currentIndex={currentIndex}
+          setCurrentIndex={setCurrentIndex}
+          answers={answers}
+          unanswered={unanswered}
+          reviewed={reviewed}
+          visited={visited}
+          globalQuestionIndex={globalQuestionIndex}
+          setShowQuitModal={setShowQuitModal}
+          setShowSubmitModal={setShowSubmitModal}
+          submittedSubjects={submittedSubjects}
+          canAccessSubject={canAccessSubject}
+        />
+      </div>
+
+      {showSubmitModal && (
+        <SubmitModal
+          subjects={subjects}
+          questions={questions}
+          answers={answers}
+          reviewed={reviewed}
+          visited={visited}
+          setShowSubmitModal={setShowSubmitModal}
+          handleFinalSubmit={handleFinalSubmit}
+          handleSubmitCurrentSubject={handleSubmitCurrentSubject}
+          isLastSubject={isLastSubject()}
+          submittedSubjects={submittedSubjects}
+        />
+      )}
+
+      {showQuitModal && (
+        <QuitModal
+          setShowQuitModal={setShowQuitModal}
+          handleQuit={handleQuitTest}
+        />
+      )}
+
+      {showWarningModal && (
+        <WarningModal
+          setShowWarningModal={setShowWarningModal}
+        />
+      )}
+
+      {showSubjectSwitchWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className={`w-full max-w-sm p-6 rounded-lg shadow-xl ${
+            true ? 'bg-white text-gray-900' : 'bg-gray-800 text-white'
+          }`}>
+            <h3 className="text-lg font-semibold mb-4">Section Time Restriction</h3>
+            <p className="text-sm mb-6">
+              The next section will automatically change when the given section's time has expired. You cannot manually switch sections in subject-wise time mode.
+            </p>
+            <button
+              onClick={() => setShowSubjectSwitchWarning(false)}
+              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+            >
+              Understood
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ExamQuestionPage;

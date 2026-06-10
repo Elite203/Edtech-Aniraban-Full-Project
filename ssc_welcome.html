@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSC Exam Login</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden; /* Hide horizontal scroll from watermark */
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* --- WATERMARK BACKGROUND --- */
+        .watermark-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Allows clicking through the watermark */
+            z-index: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: center;
+            overflow: hidden;
+            opacity: 0.1; /* Very faint */
+        }
+
+        .watermark-text {
+            color: #000;
+            font-size: 20px;
+            font-weight: bold;
+            transform: rotate(-30deg);
+            margin: 30px;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        /* --- MAIN CONTENT --- */
+        .content-wrapper {
+            position: relative;
+            z-index: 1; /* Above watermark */
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Section */
+        .top-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .system-no-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .system-no-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #000080; /* Dark Blue */
+            margin-top: 5px;
+        }
+
+        /* Layout Grid */
+        .main-layout {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0 50px;
+        }
+
+        /* Left Side: Candidate Info */
+        .candidate-info {
+            flex: 1;
+            padding-right: 50px;
+            padding-top: 50px; /* Align slightly lower */
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            width: 120px;
+            color: #000;
+        }
+
+        .info-val {
+            font-weight: bold;
+            color: #0000ff; /* Blue */
+        }
+
+        /* Right Side: Login Box */
+        .login-box-container {
+            flex: 1.2;
+            border: 8px solid #dcd6c5; /* Beige border */
+            padding: 30px;
+            text-align: center;
+            background: rgba(255,255,255,0.9); /* Slight background to hide watermark behind text */
+        }
+
+        .welcome-text {
+            color: #0000ff;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .highlight-text {
+            color: #ff0000; /* Red */
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        /* Photo Area */
+        .photo-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .photo-box {
+            width: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .photo-placeholder {
+            width: 100px;
+            height: 120px;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: flex-end; /* Align silhouette to bottom */
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        /* Silhouette using CSS/SVG background */
+        .silhouette {
+            width: 80px;
+            height: 100px;
+            background-color: #888;
+            border-radius: 50% 50% 0 0;
+            position: relative;
+        }
+        .silhouette::before {
+            content: '';
+            position: absolute;
+            top: -25px;
+            left: 15px;
+            width: 50px;
+            height: 55px;
+            background-color: #888;
+            border-radius: 50%;
+        }
+
+        .photo-caption {
+            font-size: 10px;
+            margin-top: 5px;
+            color: #555;
+        }
+
+        /* Login Button Area */
+        .login-action {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        .click-text {
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        .arrow {
+            color: #0000ff;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .btn-login {
+            background: linear-gradient(to bottom, #f0f0f0, #d0d0d0);
+            border: 1px solid #999;
+            padding: 5px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 2px;
+        }
+
+        .btn-login:hover {
+            background: #e0e0e0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="watermark-container">
+        <script>
+            // Simple script to repeat the watermark text many times
+            for(let i=0; i<150; i++) {
+                document.write('<div class="watermark-text">2511105625229</div>');
+            }
+        </script>
+    </div>
+
+    <div class="content-wrapper">
+        
+        <div class="top-header">
+            <div class="system-no-label">SYSTEM NO</div>
+            <div class="system-no-value">M001105625</div>
+        </div>
+
+        <div class="main-layout">
+            
+            <div class="candidate-info">
+                <div class="info-row">
+                    <div class="info-label">Reg Number</div>
+                    <div class="info-val">: 2511105625229</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Roll Number</div>
+                    <div class="info-val">: 2511105625229</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Name</div>
+                    <div class="info-val">: Candidate Name</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Post/Subject</div>
+                    <div class="info-val">: SSC-Mock Test</div>
+                </div>
+            </div>
+
+            <div class="login-box-container">
+                <div class="welcome-text">WELCOME TO SSC ONLINE TEST</div>
+                
+                <div class="highlight-text">Test Date: 25 Jan 2026</div>
+                <div class="highlight-text">Centre Name: Staff Selection Commission Centre</div>
+
+                <div class="photo-container">
+                    <div class="photo-box">
+                        <div class="photo-placeholder"><div class="silhouette"></div></div>
+                        <div class="photo-caption">Registration Photo</div>
+                    </div>
+                    <div class="photo-box">
+                        <div class="photo-placeholder"><div class="silhouette"></div></div>
+                        <div class="photo-caption">Captured Photo</div>
+                    </div>
+                </div>
+
+                <div class="login-action">
+                    <span class="click-text">Click here to login</span>
+                    <span class="arrow">&rarr;</span>
+                    <button class="btn-login">Login</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

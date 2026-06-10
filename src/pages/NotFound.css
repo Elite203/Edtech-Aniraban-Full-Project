@@ -1,0 +1,170 @@
+
+
+/* body {
+  overflow: hidden;
+  font-family: 'Open Sans', sans-serif;
+} */
+
+/* Animation keyframes */
+@keyframes boat {
+  0% {
+    transform-origin: left;
+    transform: rotate(-15deg) translate3d(400px, 0px, 0px);
+  }
+  20% {
+    transform-origin: left;
+    transform: rotate(15deg) translate3d(-20vw, 0, 0px);
+  }
+  25% {
+    transform-origin: left;
+    transform: rotate(-7deg) translate3d(-25vw, 0, 0px);
+  }
+  50% {
+    transform-origin: left;
+    transform: rotate(5deg) translate3d(-50vw, 0, 0px);
+  }
+  60% {
+    transform-origin: left;
+    transform: rotate(-1deg) translate3d(-60vw, 0, 0px);
+  }
+  100% {
+    transform-origin: left;
+    transform: rotate(2deg) translate3d(-100vw, 0, 0px);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: rotate(3deg) translate3d(0px, -10px, 0px);
+  }
+  50% {
+    transform: rotate(-3deg) translate3d(0px, 10px, 0px);
+  }
+}
+
+@keyframes surf {
+  0% {
+    transform-origin: right;
+    transform: rotate(15deg) translate3d(0, 800px, 0);
+  }
+  30% {
+    transform-origin: right;
+    transform: rotate(15deg) translate3d(0, 500px, 0);
+  }
+  100% {
+    transform-origin: right;
+    transform: rotate(0) translate3d(0, 0, 0px);
+  }
+}
+
+@keyframes wave-message {
+  0% {
+    transform: translate3d(0, 120%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Main container */
+.not-found {
+  position: relative;
+  overflow: hidden;
+  margin: 0 -20vw;
+  height: 110vh;
+}
+
+/* Waves background and sky */
+.not-found div {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+}
+
+.not-found .sky-bg {
+  background: url('http://res.cloudinary.com/andrewhani/image/upload/v1524821915/404/bg-1_gvybzk.svg');
+  height: 100%;
+}
+
+.not-found .wave-1 {
+  background: url('http://res.cloudinary.com/andrewhani/image/upload/v1524501869/404/wave-1.svg');
+  height: calc(100% - 250px);
+}
+.not-found .wave-2 {
+  background: url('http://res.cloudinary.com/andrewhani/image/upload/v1524501869/404/wave-2.svg');
+  height: calc(100% - 250px);
+}
+.not-found .wave-3 {
+  background: url('http://res.cloudinary.com/andrewhani/image/upload/v1524501869/404/wave-3.svg');
+  height: calc(100% - 250px);
+}
+.not-found .wave-4 {
+  background: url('http://res.cloudinary.com/andrewhani/image/upload/v1524501869/404/wave-4.svg');
+  height: calc(100% - 430px);
+}
+.not-found .wave-5 {
+  background: url('http://res.cloudinary.com/andrewhani/image/upload/v1524501869/404/wave-5.svg');
+  height: calc(100% - 250px);
+}
+.not-found .wave-6 {
+  background: url('http://res.cloudinary.com/andrewhani/image/upload/v1524501869/404/wave-6.svg');
+  height: calc(100% - 250px);
+}
+.not-found .wave-7 {
+  background: url('http://res.cloudinary.com/andrewhani/image/upload/v1524501869/404/wave-7.svg');
+  height: calc(100% - 250px);
+}
+
+/* Boat animation */
+.not-found .boat {
+  position: absolute;
+  top: 0;
+  right: 15%;
+  width: 150px;
+  animation: boat 15s cubic-bezier(0.65, 0.05, 0.36, 1) infinite;
+}
+
+/* "Lost" big 404 text */
+.not-found .wave-lost {
+  position: absolute;
+  top: 10%;
+ left :30%;
+  color: #e70b0b;
+  font-size: 20rem;
+  animation: surf 2s;
+}
+
+.not-found .wave-lost span {
+  float: left;
+  animation: float 3s ease-in infinite;
+}
+
+.not-found .wave-lost span:nth-child(2) {
+  animation-delay: 2.5s;
+}
+.not-found .wave-lost span:nth-child(3) {
+  animation-delay: 4.5s;
+}
+
+/* Island graphic */
+.not-found .wave-island {
+  position: absolute;
+  top: 130px;
+  left: 20%;
+  padding: 10px;
+  width: 170px;
+}
+
+/* Message text */
+.not-found .wave-message {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  padding-right: 50%;
+  height: auto !important;
+  color: #fff;
+  font-size: 3rem;
+  text-align: left;
+  animation: wave-message 1s;
+}

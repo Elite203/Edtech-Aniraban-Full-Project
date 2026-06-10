@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSC ONLINE MOCK TEST - SECURE MODE</title>
+    <style>
+        /* --- SSC VISUAL STYLES (UNCHANGED) --- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden; 
+            user-select: none;
+        }
+
+        body.locked { cursor: none; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #fff;
+            height: 80px;
+            box-sizing: border-box;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .header-left img { height: 60px; width: auto; }
+        .header-center { font-weight: bold; font-size: 20px; color: #000; text-transform: uppercase; }
+        .header-right { display: flex; gap: 10px; }
+        
+        .user-icon {
+            height: 50px; width: 50px; background-color: #ccc; border-radius: 5px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23888"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>');
+            background-size: cover;
+        }
+
+        .nav-strip {
+            height: 40px;
+            background-color: #0047ab;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 30px;
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .exam-title { color: #0047ab; font-weight: bold; font-size: 18px; margin-bottom: 20px; }
+
+        .login-box {
+            background-color: #eee8d5;
+            border: 1px solid #dcdcdc;
+            padding: 30px 40px;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            margin-bottom: 30px;
+            z-index: 5;
+        }
+
+        .login-box::before {
+            content: ""; position: absolute; top: -10px; left: 0; width: 150px; height: 10px;
+            background-color: #dcd6c5; border-top-left-radius: 5px; border-top-right-radius: 5px;
+        }
+
+        .form-group { display: flex; align-items: center; margin-bottom: 15px; position: relative; }
+        .form-group label { width: 200px; font-size: 14px; color: #000; }
+
+        /* --- CUSTOM DROPDOWN STYLES --- */
+        .custom-select-wrapper {
+            position: relative;
+            width: 200px;
+            user-select: none;
+            background-color: white;
+            font-size: 13px;
+        }
+
+        .custom-select-trigger {
+            position: relative;
+            display: block;
+            padding: 5px;
+            border: 1px solid #777;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            background: #fff;
+        }
+
+        .custom-select-trigger::after {
+            content: '▼';
+            position: absolute;
+            right: 8px;
+            top: 5px;
+            font-size: 10px;
+            color: #333;
+        }
+
+        .custom-options {
+            position: absolute;
+            display: none;
+            top: 100%;
+            left: 0;
+            right: 0;
+            border: 1px solid #777;
+            border-top: none;
+            background: #fff;
+            z-index: 999;
+            max-height: 150px;
+            overflow-y: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .custom-options.open { display: block; }
+
+        .custom-option {
+            padding: 8px 5px;
+            cursor: pointer;
+            font-weight: normal;
+            border-bottom: 1px solid #eee;
+        }
+
+        .custom-option:hover { background-color: #0047ab; color: white; }
+        .custom-option.selected { background-color: #ddd; font-weight: bold; }
+
+        .login-btn-container { display: flex; justify-content: flex-end; margin-top: 20px; }
+        .login-btn {
+            background: linear-gradient(to bottom, #f0f0f0, #dcdcdc);
+            border: 1px solid #999; padding: 5px 20px; font-weight: bold; cursor: pointer; color: #000;
+            box-shadow: 1px 1px 1px #aaa;
+        }
+        .login-btn:active { box-shadow: inset 1px 1px 1px #aaa; }
+
+        .disclaimer-section { width: 100%; max-width: 900px; text-align: left; font-size: 14px; line-height: 1.5; margin-bottom: 30px; }
+        .disclaimer-label { color: red; font-weight: bold; font-size: 16px; display: block; margin-bottom: 5px; }
+        .browser-warning { color: #ff3300; font-weight: bold; font-size: 20px; text-align: center; margin-top: 20px; }
+        .footer { background-color: #0047ab; color: white; text-align: center; padding: 10px; font-size: 12px; font-weight: bold; }
+
+        /* --- VIRTUAL CURSOR --- */
+        #virtual-cursor {
+            position: fixed; top: 0; left: 0; width: 0; height: 0;
+            pointer-events: none; /* Clicks pass through the cursor itself */
+            z-index: 99999;
+            display: none;
+        }
+        .cursor-icon {
+            width: 24px; height: 24px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5.5 3.2L18 14.5L11.5 15.5L14.5 21.5L12 22.5L9 16.5L5.5 20V3.2Z' fill='black' /%3E%3C/svg%3E");
+            background-size: contain; background-repeat: no-repeat;
+        }
+
+        /* --- VIOLATION OVERLAY --- */
+        #violation-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 100000;
+            display: none;
+            flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white;
+        }
+        .return-btn {
+            background: #ef4444; color: white; border: none; padding: 15px 30px;
+            font-size: 18px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="header" id="top-header">
+        <div class="header-left">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Staff_Selection_Commission_Logo.svg" alt="SSC Logo">
+        </div>
+        <div class="header-center">SSC ONLINE MOCK TEST</div>
+        <div class="header-right">
+            <div class="user-icon"></div>
+            <div class="user-icon"></div>
+        </div>
+    </header>
+
+    <div class="nav-strip" id="nav-strip"></div>
+
+    <main class="main-container">
+        <div class="exam-title">SSC Examination - 2025</div>
+
+        <div class="login-box">
+            <form id="login-form">
+                
+                <div class="form-group">
+                    <label>Post</label>
+                    <div class="custom-select-wrapper">
+                        <div class="custom-select-trigger">--Select Post--</div>
+                        <div class="custom-options">
+                            <div class="custom-option" data-value="">--Select Post--</div>
+                            <div class="custom-option" data-value="clerk">Lower Division Clerk</div>
+                            <div class="custom-option" data-value="de">Data Entry Operator</div>
+                            <div class="custom-option" data-value="pa">Postal Assistant</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Regional Language</label>
+                    <div class="custom-select-wrapper">
+                        <div class="custom-select-trigger">--Select Language--</div>
+                        <div class="custom-options">
+                            <div class="custom-option" data-value="">--Select Language--</div>
+                            <div class="custom-option" data-value="en">English</div>
+                            <div class="custom-option" data-value="hi">Hindi</div>
+                            <div class="custom-option" data-value="be">Bengali</div>
+                            <div class="custom-option" data-value="ta">Tamil</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="login-btn-container">
+                    <button type="button" class="login-btn" id="start-exam-btn">Login</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="disclaimer-section">
+            <span class="disclaimer-label">Disclaimer:</span>
+            <p>Please note that the format of the web-based mock test is provided for reference purposes only.</p>
+            <div class="browser-warning" id="status-msg">Click "Login" to enter Fullscreen Secure Mode.</div>
+        </div>
+    </main>
+
+    <footer class="footer">© SSC, All rights reserved</footer>
+
+    <div id="virtual-cursor"><div class="cursor-icon"></div></div>
+
+    <div id="violation-overlay">
+        <h2>⚠️ SECURITY VIOLATION</h2>
+        <p>You attempted to exit the secure environment.</p>
+        <button class="return-btn" id="return-btn">RETURN TO EXAM</button>
+    </div>
+
+    <script>
+        // --- 1. SETUP & ELEMENTS ---
+        const startBtn = document.getElementById('start-exam-btn');
+        const virtualCursor = document.getElementById('virtual-cursor');
+        const violationOverlay = document.getElementById('violation-overlay');
+        const returnBtn = document.getElementById('return-btn');
+        const statusMsg = document.getElementById('status-msg');
+        
+        // Barrier Calculation
+        const header = document.getElementById('top-header');
+        const nav = document.getElementById('nav-strip');
+        const BARRIER_HEIGHT = header.offsetHeight + nav.offsetHeight + 2; 
+
+        let cursorX = window.innerWidth / 2;
+        let cursorY = window.innerHeight / 2;
+        let isIntentionalExit = false;
+
+        // --- 2. FIXED DROPDOWN LOGIC ---
+        
+        // Handle Trigger Clicks
+        document.querySelectorAll('.custom-select-trigger').forEach(trigger => {
+            trigger.addEventListener('click', function(e) {
+                // STOP PROPAGATION: Prevents the document listener from immediately closing this menu
+                e.stopPropagation(); 
+                
+                // Close other open dropdowns first
+                document.querySelectorAll('.custom-options').forEach(opt => {
+                    if (opt !== this.nextElementSibling) opt.classList.remove('open');
+                });
+                
+                // Toggle this dropdown
+                this.nextElementSibling.classList.toggle('open');
+            });
+        });
+
+        // Handle Option Clicks
+        document.querySelectorAll('.custom-option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.stopPropagation(); // Also stop propagation here
+                
+                const wrapper = this.closest('.custom-select-wrapper');
+                const trigger = wrapper.querySelector('.custom-select-trigger');
+                const optionsMenu = wrapper.querySelector('.custom-options');
+                
+                trigger.textContent = this.textContent;
+                
+                wrapper.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                optionsMenu.classList.remove('open');
+            });
+        });
+
+        // Close dropdowns ONLY if clicking on Document (outside logic)
+        document.addEventListener('click', function(e) {
+            document.querySelectorAll('.custom-options').forEach(opt => opt.classList.remove('open'));
+        });
+
+        // --- 3. SECURE MODE LOGIC ---
+        startBtn.addEventListener('click', enterSecureMode);
+        returnBtn.addEventListener('click', enterSecureMode);
+
+        async function enterSecureMode(e) {
+            // Prevent this click from bubbling to document and closing things immediately
+            if(e) e.stopPropagation(); 
+
+            try {
+                isIntentionalExit = false;
+                await document.documentElement.requestFullscreen();
+                await document.body.requestPointerLock();
+                if (navigator.keyboard && navigator.keyboard.lock) {
+                    try { await navigator.keyboard.lock(); } catch(e){}
+                }
+                violationOverlay.style.display = 'none';
+                statusMsg.innerText = "SECURE MODE ACTIVE";
+                statusMsg.style.color = "green";
+            } catch (err) {
+                console.error(err);
+                alert("Fullscreen required.");
+            }
+        }
+
+        document.addEventListener('pointerlockchange', () => {
+            if (document.pointerLockElement === document.body) {
+                document.body.classList.add('locked');
+                virtualCursor.style.display = 'block';
+                
+                // Position cursor
+                cursorX = window.innerWidth / 2;
+                cursorY = Math.max(BARRIER_HEIGHT + 100, window.innerHeight / 2);
+                updateCursor();
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mousedown', onMouseDown);
+                document.addEventListener('mouseup', onMouseUp);
+            } else {
+                document.body.classList.remove('locked');
+                virtualCursor.style.display = 'none';
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mousedown', onMouseDown);
+                document.removeEventListener('mouseup', onMouseUp);
+
+                if (!isIntentionalExit && !document.fullscreenElement) {
+                    // Handled by fullscreenchange
+                }
+            }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && !isIntentionalExit) {
+                violationOverlay.style.display = 'flex';
+                document.exitPointerLock(); 
+            }
+        });
+
+        // --- 4. VIRTUAL MOUSE ENGINE ---
+        function onMouseMove(e) {
+            cursorX += e.movementX;
+            cursorY += e.movementY;
+            cursorX = Math.max(0, Math.min(cursorX, window.innerWidth));
+            cursorY = Math.max(BARRIER_HEIGHT, Math.min(cursorY, window.innerHeight));
+            updateCursor();
+        }
+
+        function updateCursor() {
+            virtualCursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
+        }
+
+        function onMouseDown(e) {
+            // Only left click
+            if(e.button !== 0) return;
+
+            // Prevent default behavior to stop native focus weirdness
+            e.preventDefault();
+
+            virtualCursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) scale(0.9)`;
+            
+            // Identify element under cursor
+            const target = document.elementFromPoint(cursorX, cursorY);
+            
+            if (target && target !== virtualCursor) {
+                // Manually trigger click
+                target.click();
+                
+                // If it's an input or focusable, focus it
+                if (target.tabIndex >= 0 || target.tagName === 'INPUT' || target.tagName === 'BUTTON') {
+                    target.focus();
+                }
+            }
+        }
+
+        function onMouseUp() {
+            virtualCursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) scale(1)`;
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overall Test Summary</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8; /* Light gray background for contrast */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* --- CARD CONTAINER --- */
+        .summary-card {
+            background-color: #fff;
+            width: 100%;
+            max-width: 550px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* --- LOGO & TITLE --- */
+        .ssc-logo {
+            height: 60px;
+            width: auto;
+            margin-bottom: 10px;
+        }
+
+        .summary-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        /* --- CANDIDATE DETAILS TABLE --- */
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .details-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: left;
+        }
+
+        .details-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .label-col {
+            font-weight: bold;
+            color: #444;
+            width: 40%;
+        }
+
+        .value-col {
+            font-weight: bold;
+            color: #000;
+        }
+
+        /* --- STATS GRID --- */
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 13px;
+        }
+
+        .stats-table th {
+            font-weight: normal;
+            color: #555;
+            padding: 10px 5px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+        
+        /* The header 'Total Per Part' is blue in the image */
+        .stats-table th:last-child {
+            color: #007bff;
+        }
+
+        .stats-table td {
+            padding: 10px 5px;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .stats-table td:first-child {
+            text-align: left; /* Align Part Names Left */
+            padding-left: 10px;
+        }
+
+        /* Last column numbers are blue */
+        .stats-table td:last-child {
+            color: #007bff;
+        }
+
+        /* TOTAL Row Styles */
+        .total-row td {
+            border-top: 2px solid #ddd;
+            border-bottom: none;
+            font-size: 14px;
+            color: #007bff; /* All text in total row is blue */
+        }
+
+        /* --- BUTTON --- */
+        .complete-btn {
+            background-color: #007bff; /* Bright Blue */
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .complete-btn:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="summary-card">
+        
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Staff_Selection_Commission_Logo.svg" alt="SSC Logo" class="ssc-logo">
+        
+        <div class="summary-title">Overall Test Summary</div>
+
+        <table class="details-table">
+            <tr>
+                <td class="label-col">Reg Number</td>
+                <td class="value-col">: 112121610267</td>
+            </tr>
+            <tr>
+                <td class="label-col">Roll Number</td>
+                <td class="value-col">: 112121610267</td>
+            </tr>
+            <tr>
+                <td class="label-col">Candidate Name</td>
+                <td class="value-col">: Candidate Name</td>
+            </tr>
+            <tr>
+                <td class="label-col">Exam Name</td>
+                <td class="value-col">: SSC-Mock Test</td>
+            </tr>
+        </table>
+
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Answered</th>
+                    <th>Not Answered</th>
+                    <th>Total Per Part</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>PART-A</td>
+                    <td>0</td>
+                    <td>25</td>
+                    <td>25</td>
+                </tr>
+                <tr>
+                    <td>PART-B</td>
+                    <td>0</td>
+                    <td>25</td>
+                    <td>25</td>
+                </tr>
+                <tr>
+                    <td>PART-C</td>
+                    <td>0</td>
+                    <td>25</td>
+                    <td>25</td>
+                </tr>
+                <tr>
+                    <td>PART-D</td>
+                    <td>0</td>
+                    <td>25</td>
+                    <td>25</td>
+                </tr>
+                <tr class="total-row">
+                    <td>TOTAL</td>
+                    <td>0</td>
+                    <td>100</td>
+                    <td>100</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button class="complete-btn" onclick="alert('Test Submitted Successfully!')">Click Here to Complete the Test</button>
+
+    </div>
+
+</body>
+</html>

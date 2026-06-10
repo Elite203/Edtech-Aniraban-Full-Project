@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSC Mock Test Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
+            margin: 0;
+        }
+
+        /* --- TEXT HEADERS --- */
+        .header-text {
+            text-align: center;
+            color: #0000ff; /* Blue */
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .password-hint {
+            color: #0000ff;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* --- LOGIN FORM BOX --- */
+        .login-wrapper {
+            width: 600px;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        /* The Tab-like header for "Candidate Login" */
+        .login-header {
+            background-color: #dcd6c5; /* Beige/Gray */
+            width: 200px;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 14px;
+            border-top: 1px solid #aaa;
+            border-left: 1px solid #aaa;
+            border-right: 1px solid #aaa;
+            /* Creating the slanted tab look */
+            clip-path: polygon(0 0, 90% 0, 100% 100%, 0% 100%);
+            margin-bottom: -1px; /* Overlap border */
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-body {
+            background-color: #f0ebe0; /* Light beige bg */
+            border: 1px solid #aaa; /* Or just transparent/white if mimicking exact image */
+            /* In image, it looks like a fieldset or just a background strip */
+            background: #eee8d5;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+        }
+
+        /* Transparent overlay to match the "open" look of the image */
+        .login-container {
+            width: 100%;
+            background-color: #fcfcfc; /* Very light gray/white block in middle */
+            border: 1px solid #ccc;
+            padding: 15px;
+            box-sizing: border-box;
+            background: linear-gradient(to bottom, #eee 0%, #fff 10%, #fff 90%, #eee 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+        }
+
+        .input-row label {
+            width: 100px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .input-row input {
+            border: 1px solid #000;
+            padding: 3px;
+            width: 200px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        /* Login Button */
+        .login-btn {
+            background: linear-gradient(to bottom, #e0e0e0, #c0c0c0);
+            border: 1px solid #888;
+            padding: 5px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            height: 30px;
+            margin-left: 20px; /* Space from inputs */
+        }
+        
+        .login-btn:active {
+            box-shadow: inset 1px 1px 2px #888;
+        }
+
+        /* --- VIRTUAL KEYBOARD --- */
+        .keyboard-frame {
+            border: 1px solid #000;
+            padding: 10px;
+            display: inline-block;
+            background-color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .kb-row {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .kb-key {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #000;
+            background-color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 1px 1px 1px #ccc;
+        }
+
+        .kb-key:hover {
+            background-color: #e0f0ff;
+        }
+
+        .kb-key:active {
+            background-color: #ccc;
+            box-shadow: inset 1px 1px 1px #888;
+        }
+
+        .kb-backspace {
+            width: auto;
+            padding: 0 10px;
+            font-size: 14px;
+        }
+
+        /* Footer Warning */
+        .footer-warning {
+            color: #ff0000;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header-text">
+        You are about to take the test on<br>
+        SSC-Mock Test Examination - 2025
+    </div>
+
+    <div class="password-hint">PASSWORD IS ABC1</div>
+
+    <div class="login-wrapper">
+        <div class="login-header">Candidate Login</div>
+        <div class="login-body">
+            
+            <div style="display: flex; justify-content: space-between; width: 100%;">
+                
+                <div class="form-area">
+                    <div class="input-row">
+                        <label>Roll No.</label>
+                        <span>: </span>
+                        <input type="text" value="2511105625229" readonly>
+                    </div>
+                    <div class="input-row">
+                        <label>Password</label>
+                        <span>: </span>
+                        <input type="password" id="passwordInput">
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: flex-end;">
+                    <button class="login-btn" onclick="alert('Login Clicked!')">Login</button>
+                 </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="keyboard-frame">
+        <div class="kb-row">
+            <button class="kb-key" onclick="typeChar('1')">1</button>
+            <button class="kb-key" onclick="typeChar('2')">2</button>
+            <button class="kb-key" onclick="typeChar('3')">3</button>
+            <button class="kb-key" onclick="typeChar('4')">4</button>
+            <button class="kb-key" onclick="typeChar('5')">5</button>
+            <button class="kb-key" onclick="typeChar('6')">6</button>
+            <button class="kb-key" onclick="typeChar('7')">7</button>
+            <button class="kb-key" onclick="typeChar('8')">8</button>
+            <button class="kb-key" onclick="typeChar('9')">9</button>
+            <button class="kb-key" onclick="typeChar('0')">0</button>
+            <button class="kb-key" onclick="typeChar('@')">@</button>
+            <button class="kb-key kb-backspace" onclick="backspace()">BackSpace</button>
+        </div>
+        <div class="kb-row">
+            <button class="kb-key" onclick="typeChar('Q')">Q</button>
+            <button class="kb-key" onclick="typeChar('W')">W</button>
+            <button class="kb-key" onclick="typeChar('E')">E</button>
+            <button class="kb-key" onclick="typeChar('R')">R</button>
+            <button class="kb-key" onclick="typeChar('T')">T</button>
+            <button class="kb-key" onclick="typeChar('Y')">Y</button>
+            <button class="kb-key" onclick="typeChar('U')">U</button>
+            <button class="kb-key" onclick="typeChar('I')">I</button>
+            <button class="kb-key" onclick="typeChar('O')">O</button>
+            <button class="kb-key" onclick="typeChar('P')">P</button>
+            <button class="kb-key" onclick="typeChar('#')">#</button>
+        </div>
+        <div class="kb-row">
+            <button class="kb-key" onclick="typeChar('A')">A</button>
+            <button class="kb-key" onclick="typeChar('S')">S</button>
+            <button class="kb-key" onclick="typeChar('D')">D</button>
+            <button class="kb-key" onclick="typeChar('F')">F</button>
+            <button class="kb-key" onclick="typeChar('G')">G</button>
+            <button class="kb-key" onclick="typeChar('H')">H</button>
+            <button class="kb-key" onclick="typeChar('J')">J</button>
+            <button class="kb-key" onclick="typeChar('K')">K</button>
+            <button class="kb-key" onclick="typeChar('L')">L</button>
+            <button class="kb-key" onclick="typeChar('%')">%</button>
+        </div>
+        <div class="kb-row">
+            <button class="kb-key" onclick="typeChar('Z')">Z</button>
+            <button class="kb-key" onclick="typeChar('X')">X</button>
+            <button class="kb-key" onclick="typeChar('C')">C</button>
+            <button class="kb-key" onclick="typeChar('V')">V</button>
+            <button class="kb-key" onclick="typeChar('B')">B</button>
+            <button class="kb-key" onclick="typeChar('N')">N</button>
+            <button class="kb-key" onclick="typeChar('M')">M</button>
+        </div>
+    </div>
+
+    <div class="footer-warning">
+        Please Use Virtual Keyboard to Enter Your Password.
+    </div>
+
+    <script>
+        const passwordField = document.getElementById('passwordInput');
+
+        function typeChar(char) {
+            passwordField.value += char;
+        }
+
+        function backspace() {
+            passwordField.value = passwordField.value.slice(0, -1);
+        }
+    </script>
+
+</body>
+</html>

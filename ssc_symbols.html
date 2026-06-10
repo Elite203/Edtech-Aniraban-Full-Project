@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbols Instructions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 20px;
+            color: #000;
+        }
+
+        /* Top Heading */
+        .page-heading {
+            color: #000080; /* Dark Blue */
+            font-weight: bold;
+            font-size: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Table Styling */
+        .symbol-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        /* Header Row */
+        .symbol-table th {
+            background-color: #dcd6c5; /* Beige header background */
+            padding: 8px;
+            text-align: center;
+            border: none;
+            font-weight: bold;
+        }
+
+        /* Columns */
+        .col-symbol {
+            width: 150px;
+            text-align: center;
+            vertical-align: middle;
+            padding: 10px;
+        }
+
+        .col-desc {
+            text-align: left;
+            vertical-align: middle;
+            padding: 10px;
+            color: #0000ff; /* Blue text for descriptions */
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        /* --- SYMBOL SHAPES --- */
+        
+        /* Numbered Boxes */
+        .box-icon {
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 11px;
+            color: white;
+            margin: 0 auto;
+        }
+
+        .box-blue { background-color: #0000ff; border: 1px solid #0000a0; }
+        .box-green { background-color: #008000; border: 1px solid #006400; }
+        .box-red { background-color: #ff0000; border: 1px solid #8b0000; }
+        .box-yellow { 
+            background-color: #ffff00; 
+            color: #000; /* Black text for yellow box */
+            border: 1px solid #cccc00; 
+        }
+
+        /* Arrow Icon under boxes */
+        .arrow-icon {
+            font-size: 10px;
+            margin-top: -2px;
+            display: block;
+        }
+
+        /* --- BUTTON STYLES --- */
+        .btn-style {
+            color: white;
+            border: 1px solid #333;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+            cursor: default;
+            border-radius: 3px;
+            text-align: center;
+            display: inline-block;
+            min-width: 80px;
+        }
+
+        /* Gradient for blue buttons */
+        .btn-blue-grad {
+            background: linear-gradient(to bottom, #4a8ad4, #1f5a9e);
+            border-color: #1f5a9e;
+        }
+
+        /* Footer Navigation Buttons */
+        .footer-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding: 0 50px;
+        }
+
+        .nav-button {
+            background-color: #1a4a7a; /* Dark Blue */
+            color: white;
+            border: 1px solid #000;
+            padding: 5px 15px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 2px 2px 2px #888;
+        }
+
+        .nav-button:active {
+            box-shadow: inset 2px 2px 2px #555;
+        }
+
+        /* Radio button blue inside */
+        input[type="radio"] {
+            accent-color: #0000ff;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="page-heading">
+        The different symbols used in the next pages are shown below. Please go through them and understand their meaning before you start the test.
+    </div>
+
+    <table class="symbol-table">
+        <thead>
+            <tr>
+                <th class="col-symbol">Symbol</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="col-symbol">
+                    <input type="radio" disabled>
+                </td>
+                <td class="col-desc">
+                    Option Not chosen
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-symbol">
+                    <input type="radio" checked disabled>
+                </td>
+                <td class="col-desc">
+                    Option chosen as correct (By clicking on it again you can delete your option and choose another option if desired.)
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-symbol">
+                    <div class="box-icon box-blue">12</div>
+                </td>
+                <td class="col-desc">
+                    Question number shown in blue color indicates that you have not yet attempted the question.
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-symbol">
+                    <div class="box-icon box-green">13</div>
+                </td>
+                <td class="col-desc">
+                    Question number shown in green color indicates that you have answered the question.
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-symbol">
+                    <div class="box-icon box-red">14</div>
+                    <div class="arrow-icon">▲</div>
+                </td>
+                <td class="col-desc">
+                    You have not yet answered the question, but marked it for coming back for review later, if time permits.
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-symbol">
+                    <div class="box-icon box-yellow">15</div>
+                    <div class="arrow-icon">▲</div>
+                </td>
+                <td class="col-desc">
+                    You have answered the question, but marked it for review later, if time permits.
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-symbol">
+                    <div class="btn-style btn-blue-grad">Save & Next</div>
+                </td>
+                <td class="col-desc">
+                    Clicking on this will take you to the next question.
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-symbol">
+                    <div class="btn-style btn-blue-grad">Previous</div>
+                </td>
+                <td class="col-desc">
+                    Clicking on this will take you to the previous question.
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-symbol">
+                    <div class="btn-style btn-blue-grad">Mark for Review</div>
+                </td>
+                <td class="col-desc">
+                    By clicking on this button, you can mark the question for review later. Please note that if you answer the question and mark for review, the question will be treated as answered and evaluated even if you do not review it.
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-symbol">
+                    <div class="btn-style btn-blue-grad">Unmark For Review</div>
+                </td>
+                <td class="col-desc">
+                    By clicking on this button, you can unmark the question for review
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer-nav">
+        <button class="nav-button">&lt;&lt; Back</button>
+        <button class="nav-button">Continue &gt;&gt;</button>
+    </div>
+
+</body>
+</html>

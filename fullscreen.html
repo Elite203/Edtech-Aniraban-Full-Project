@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fullscreen Warning Module</title>
+    <style>
+        /* Basic Page Style */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* --- WARNING OVERLAY CSS --- */
+        #violation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95); /* Dark background */
+            z-index: 100000; /* Stays on top of everything */
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+
+        #violation-overlay h2 {
+            color: #ef4444; /* Red color */
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        #violation-overlay p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .return-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .return-btn:hover {
+            background: #dc2626;
+        }
+
+        /* Button to start the test */
+        .start-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #0047ab;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="start-btn" id="start-btn">Start Secure Exam</button>
+
+    <div id="violation-overlay">
+        <h2>⚠️ SECURITY VIOLATION</h2>
+        <p>You attempted to exit the secure environment.</p>
+        <p>This incident has been logged.</p>
+        <button class="return-btn" id="return-btn">RETURN TO EXAM</button>
+    </div>
+
+    <script>
+        const overlay = document.getElementById('violation-overlay');
+        const startBtn = document.getElementById('start-btn');
+        const returnBtn = document.getElementById('return-btn');
+        
+        let isIntentionalExit = false;
+
+        // 1. Function to Enter Fullscreen
+        async function enterSecureMode() {
+            try {
+                // Mark that we are entering securely
+                isIntentionalExit = false;
+                
+                // Request Fullscreen
+                await document.documentElement.requestFullscreen();
+                
+                // Hide the overlay if it was open
+                overlay.style.display = 'none';
+            } catch (err) {
+                alert("You must allow Fullscreen to proceed.");
+            }
+        }
+
+        // 2. Event Listener: Detects when Fullscreen changes
+        document.addEventListener('fullscreenchange', () => {
+            // If we are NOT in fullscreen AND it wasn't an intentional exit
+            if (!document.fullscreenElement && !isIntentionalExit) {
+                // Show the Warning Overlay
+                overlay.style.display = 'flex';
+            }
+        });
+
+        // 3. Button Actions
+        startBtn.addEventListener('click', enterSecureMode);
+        returnBtn.addEventListener('click', enterSecureMode);
+
+        // Optional: If you have a "Finish Exam" button, you would set isIntentionalExit = true
+        // function finishExam() {
+        //    isIntentionalExit = true;
+        //    document.exitFullscreen();
+        // }
+    </script>
+
+</body>
+</html>

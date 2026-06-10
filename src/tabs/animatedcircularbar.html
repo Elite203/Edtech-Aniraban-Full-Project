@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Circular Progress Bars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #2e2e2e; /* Dark background matching the image */
+        }
+
+        .container {
+            display: flex;
+            gap: 50px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Card Container */
+        .card {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* SVG Circular Track Container */
+        .card svg {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            /* Rotate -90deg so the progress starts from the top */
+            transform: rotate(-90deg);
+        }
+
+        .card svg circle {
+            width: 100%;
+            height: 100%;
+            fill: transparent;
+            stroke-width: 16; /* Thickness of the ring */
+            stroke-linecap: round; /* Rounded edges on the progress line */
+        }
+
+        /* The dark background track */
+        .card svg circle.track {
+            stroke: #1a1a1a;
+        }
+
+        /* The glowing colored progress line */
+        .card svg circle.progress {
+            stroke: var(--clr);
+            /* Circumference = 2 * PI * r (2 * 3.14 * 80 = 502.6) */
+            stroke-dasharray: 503; 
+            stroke-dashoffset: 503; /* Start fully hidden */
+            transition: stroke-dashoffset 1.5s ease-in-out;
+            /* Adds the neon glow effect */
+            filter: drop-shadow(0 0 6px var(--clr));
+        }
+
+        /* The raised inner dial */
+        .inner-dial {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: #333;
+            /* Creates the thick grey rim and the shadow casting onto the rings */
+            border: 5px solid #4a4a4a;
+            box-shadow: 
+                inset 5px 5px 10px rgba(0,0,0,0.5), 
+                inset -5px -5px 10px rgba(255,255,255,0.05),
+                0 0 15px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Typography */
+        .inner-dial .percentage {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--clr);
+            line-height: 1.1;
+            display: flex;
+            align-items: center;
+        }
+
+        .inner-dial .percentage span {
+            font-size: 18px;
+            margin-left: 2px;
+        }
+
+        .inner-dial .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e0e0e0;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="card" data-percent="26" style="--clr: #ff004f;">
+            <svg>
+                <circle class="track" cx="100" cy="100" r="80"></circle>
+                <circle class="progress" cx="100" cy="100" r="80"></circle>
+            </svg>
+            <div class="inner-dial">
+                <div class="percentage"><div class="num">0</div><span>%</span></div>
+                <div class="label">HTML</div>
+            </div>
+        </div>
+
+        <div class="card" data-percent="68" style="--clr: #ffeb3b;">
+            <svg>
+                <circle class="track" cx="100" cy="100" r="80"></circle>
+                <circle class="progress" cx="100" cy="100" r="80"></circle>
+            </svg>
+            <div class="inner-dial">
+                <div class="percentage"><div class="num">0</div><span>%</span></div>
+                <div class="label">HTML</div>
+            </div>
+        </div>
+
+        <div class="card" data-percent="68" style="--clr: #00e676;">
+            <svg>
+                <circle class="track" cx="100" cy="100" r="80"></circle>
+                <circle class="progress" cx="100" cy="100" r="80"></circle>
+            </svg>
+            <div class="inner-dial">
+                <div class="percentage"><div class="num">0</div><span>%</span></div>
+                <div class="label">HTML</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.card');
+
+            cards.forEach(card => {
+                const targetPercent = parseInt(card.getAttribute('data-percent'));
+                const progressCircle = card.querySelector('.progress');
+                const numberDisplay = card.querySelector('.num');
+                
+                // The circumference of the circle (2 * Math.PI * 80) is roughly 503
+                const circumference = 503; 
+                
+                // Calculate how much to offset the dash to show the correct percentage
+                const offset = circumference - (circumference * targetPercent) / 100;
+
+                // Add a small delay so the animation triggers smoothly after page load
+                setTimeout(() => {
+                    // Animate the SVG stroke
+                    progressCircle.style.strokeDashoffset = offset;
+
+                    // Animate the number counting up
+                    let currentNum = 0;
+                    // We want the number counter to finish around the same time as the 1.5s CSS transition
+                    const totalDuration = 1500; 
+                    const intervalTime = totalDuration / targetPercent;
+
+                    const counter = setInterval(() => {
+                        if (currentNum >= targetPercent) {
+                            clearInterval(counter);
+                            numberDisplay.innerText = targetPercent; // Ensure it ends exactly on target
+                        } else {
+                            currentNum++;
+                            numberDisplay.innerText = currentNum;
+                        }
+                    }, intervalTime);
+
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>

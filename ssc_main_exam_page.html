@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSC Mock Test Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent full page scroll, handle inner scroll */
+        }
+
+        /* --- TOP HEADER --- */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .header-links a {
+            margin-right: 15px;
+            text-decoration: underline;
+            color: #0000ff; /* Blue links */
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .disclaimer-text {
+            text-align: center;
+            font-weight: bold;
+            color: #cc0000; /* Dark Red */
+            line-height: 1.4;
+        }
+
+        .total-answered {
+            font-weight: bold;
+            text-align: right;
+        }
+        
+        .count-badge {
+            background-color: #ffff00; /* Yellow */
+            color: #000;
+            padding: 0 4px;
+            border: 1px solid #aaa;
+        }
+
+        /* --- NAVIGATION BAR (Tabs & Action Buttons) --- */
+        .nav-bar {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            background-color: #fff;
+            border-bottom: 2px solid #ccc;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            flex-grow: 1;
+        }
+
+        .tab-btn {
+            color: white;
+            font-weight: bold;
+            padding: 5px 15px;
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 2px;
+            border: 1px solid #333;
+        }
+
+        .tab-green { background-color: #008000; border-color: #006400; }
+        .tab-blue { background-color: #0000ff; border-color: #0000a0; }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .act-btn {
+            background: linear-gradient(to bottom, #4a8ad4, #1f5a9e);
+            border: 1px solid #1f5a9e;
+            color: white;
+            font-weight: bold;
+            padding: 4px 15px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        /* --- MAIN SPLIT LAYOUT --- */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden; /* Contains the scroll areas */
+        }
+
+        /* LEFT SIDE: QUESTION AREA */
+        .question-area {
+            flex: 3; /* Takes up 75% approx */
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 5px solid #e0e0e0;
+            position: relative;
+        }
+
+        .q-number {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .q-text {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .underlined {
+            text-decoration: underline;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .options-list li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .options-list input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        /* RIGHT SIDE: PALETTE AREA */
+        .palette-area {
+            flex: 1; /* Takes up 25% approx */
+            display: flex;
+            flex-direction: column;
+            background-color: #fcfcfc;
+            min-width: 280px;
+            border-left: 1px solid #999;
+        }
+
+        /* Blue Triangle Indicator */
+        .triangle-indicator {
+            position: absolute;
+            right: 280px; /* Aligns with palette width */
+            top: 50px;
+            width: 0; 
+            height: 0; 
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 15px solid #0000ff; /* Blue Arrow */
+            z-index: 10;
+        }
+
+        .palette-header {
+            padding: 5px;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .lang-select-row {
+            padding: 5px;
+            text-align: right;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .lang-select-row select {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Number Grid */
+        .grid-container {
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 columns */
+            gap: 10px;
+            justify-items: center;
+        }
+
+        .grid-btn {
+            width: 30px;
+            height: 25px;
+            background-color: #0000ff; /* Blue background */
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid #0000a0;
+            box-shadow: 1px 1px 1px #888;
+        }
+
+        /* Analysis Table */
+        .analysis-container {
+            margin-top: auto; /* Pushes to bottom */
+            padding: 5px;
+        }
+
+        .analysis-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            border: 1px solid #999;
+        }
+
+        .analysis-table th {
+            background-color: #d0d0d0;
+            padding: 4px;
+            border: 1px solid #999;
+        }
+
+        .analysis-table td {
+            padding: 4px;
+            border: 1px solid #999;
+        }
+
+        .analysis-table td:last-child {
+            text-align: center;
+            font-weight: bold;
+            width: 40px;
+        }
+
+        .count-yellow { background-color: #ffff00; color: red; }
+        .count-plain { color: red; }
+
+    </style>
+</head>
+<body>
+
+    <div class="top-header">
+        <div class="header-links">
+            <a href="#">SYMBOLS</a>
+            <a href="#">INSTRUCTIONS</a>
+            <a href="#">OVERALL TEST SUMMARY</a>
+        </div>
+        <div class="disclaimer-text">
+            Please note that this is only a mock test designed for practice purposes. Some of the questions may be repeated or similar.<br>
+            All questions are auto-saved upon option selection
+        </div>
+        <div class="total-answered">
+            Total Questions answered: <span class="count-badge">0</span>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <div class="tabs">
+            <a href="#" class="tab-btn tab-green">PART-A</a>
+            <a href="#" class="tab-btn tab-blue">PART-B</a>
+            <a href="#" class="tab-btn tab-blue">PART-C</a>
+            <a href="#" class="tab-btn tab-blue">PART-D</a>
+        </div>
+        <div class="action-buttons">
+            <button class="act-btn">Mark for Review</button>
+            <button class="act-btn">Save & Next</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        
+        <div class="question-area">
+            <div class="q-number">Question : 1</div>
+            
+            <div class="q-text">
+                Three segments of the following sentence have been underlined and given as options. One of them may contain an error. Select the option that contains the error. If you don't find any error, mark 'No error' as your answer.<br>
+                Since his son has not yet completed the age of eighteen, <span class="underlined">he was reluctant</span> <span class="underlined">to fulfil his son's demand</span> <span class="underlined">of getting a motorbike</span>.
+            </div>
+
+            <ul class="options-list">
+                <li><input type="radio" name="q1"> he was reluctant</li>
+                <li><input type="radio" name="q1"> to fulfil his son's demand</li>
+                <li><input type="radio" name="q1"> No error</li>
+                <li><input type="radio" name="q1"> of getting a motorbike</li>
+            </ul>
+        </div>
+
+        <div class="palette-area">
+            
+            <div class="palette-header">
+                English Language (Basic Knowledge)
+            </div>
+
+            <div class="lang-select-row">
+                <label>Select Language: </label>
+                <select>
+                    <option>Language</option>
+                    <option selected>English</option>
+                    <option>Hindi</option>
+                </select>
+            </div>
+
+            <div class="grid-container">
+                <div class="grid-btn">1</div> <div class="grid-btn">2</div> <div class="grid-btn">3</div> <div class="grid-btn">4</div> <div class="grid-btn">5</div>
+                <div class="grid-btn">6</div> <div class="grid-btn">7</div> <div class="grid-btn">8</div> <div class="grid-btn">9</div> <div class="grid-btn">10</div>
+                <div class="grid-btn">11</div> <div class="grid-btn">12</div> <div class="grid-btn">13</div> <div class="grid-btn">14</div> <div class="grid-btn">15</div>
+                <div class="grid-btn">16</div> <div class="grid-btn">17</div> <div class="grid-btn">18</div> <div class="grid-btn">19</div> <div class="grid-btn">20</div>
+                <div class="grid-btn">21</div> <div class="grid-btn">22</div> <div class="grid-btn">23</div> <div class="grid-btn">24</div> <div class="grid-btn">25</div>
+            </div>
+
+            <div class="analysis-container">
+                <table class="analysis-table">
+                    <thead>
+                        <tr>
+                            <th colspan="2">PART-A Analysis</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Answered</td>
+                            <td class="count-plain">0</td>
+                        </tr>
+                        <tr>
+                            <td>Not Answered</td>
+                            <td class="count-yellow">25</td>
+                        </tr>
+                        <tr>
+                            <td>Mark for Review</td>
+                            <td class="count-yellow">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

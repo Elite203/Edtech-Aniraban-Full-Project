@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Name & Photograph</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- TOP WARNING TEXT --- */
+        .top-warning {
+            color: #0000ff; /* Blue */
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .verification-container {
+            width: 100%;
+            max-width: 900px;
+            border: 1px solid #dcd6c5; /* Light border around the whole section? Optional, typically mostly invisible */
+            /* In image it looks frameless but grouped */
+        }
+
+        /* --- BEIGE HEADER BAR --- */
+        .section-header {
+            background-color: #dcd6c5; /* Beige/Gray */
+            padding: 8px 15px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #000;
+            margin-bottom: 20px;
+            /* To create the 'tab' look if desired, though image shows a full bar */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* --- CONTENT LAYOUT (Split Left/Right) --- */
+        .content-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0 20px;
+            flex-wrap: wrap; /* Responsive wrapping */
+        }
+
+        /* LEFT SIDE: DETAILS */
+        .details-section {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Spacing between rows */
+            padding-top: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: baseline;
+            font-size: 14px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            width: 100px; /* Fixed width for alignment */
+            color: #000;
+        }
+
+        .info-separator {
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
+        .info-value {
+            font-weight: bold;
+            color: #0000ff; /* Blue */
+        }
+
+        /* RIGHT SIDE: PHOTOS */
+        .photos-section {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 30px; /* Space between the two photos */
+            min-width: 300px;
+        }
+
+        .photo-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .photo-box {
+            width: 100px;
+            height: 120px;
+            background-color: #f0f0f0; /* Light gray placeholder bg */
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            margin-bottom: 5px;
+            overflow: hidden;
+            border: 1px solid #ccc;
+        }
+
+        /* SVG Silhouette Icon styles */
+        .silhouette-icon {
+            width: 80%;
+            height: 80%;
+            fill: #888; /* Gray color for silhouette */
+        }
+
+        .photo-caption {
+            font-size: 11px;
+            color: #333;
+            text-align: center;
+        }
+
+        /* --- CONTINUE BUTTON --- */
+        .button-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+            margin-bottom: 30px;
+        }
+
+        .continue-btn {
+            background: linear-gradient(to bottom, #f0f0f0, #dcdcdc);
+            border: 1px solid #999;
+            padding: 5px 20px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            color: #000;
+            box-shadow: 1px 1px 1px #aaa;
+        }
+
+        .continue-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .continue-btn:active {
+            box-shadow: inset 1px 1px 1px #aaa;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="top-warning">
+        If Your name and photograph do not match, please contact the Administrator.
+    </div>
+
+    <div class="verification-container">
+        
+        <div class="section-header">
+            Verify Name & Photograph
+        </div>
+
+        <div class="content-area">
+            
+            <div class="details-section">
+                <div class="info-row">
+                    <span class="info-label">Roll No</span>
+                    <span class="info-separator">:</span>
+                    <span class="info-value">2511121111794</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Name</span>
+                    <span class="info-separator">:</span>
+                    <span class="info-value">Candidate Name</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Test Date</span>
+                    <span class="info-separator">:</span>
+                    <span class="info-value">Sunday, January 25, 2026</span>
+                </div>
+            </div>
+
+            <div class="photos-section">
+                
+                <div class="photo-wrapper">
+                    <div class="photo-box">
+                        <svg class="silhouette-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <div class="photo-caption">Application Form Photo</div>
+                </div>
+
+                <div class="photo-wrapper">
+                    <div class="photo-box">
+                        <svg class="silhouette-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <div class="photo-caption">Exam center Webcam Photo</div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="button-container">
+            <button class="continue-btn" onclick="alert('Proceeding to Exam...')">Continue</button>
+        </div>
+
+    </div>
+
+</body>
+</html>

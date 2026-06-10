@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expanded Offer Popup</title>
+    <!-- Font Awesome for Social Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold-primary: #d4af37;
+            --gold-dark: #8a6d3b;
+            --gold-light: #f9f295;
+            --insta: #E1306C;
+            --fb: #1877F2;
+            --wa: #25D366;
+            --li: #0077B5;
+            --tg: #0088cc;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial Black', Gadget, sans-serif;
+        }
+
+        /* Main Container - Slightly horizontally expanded */
+        .offer-popup {
+            position: relative;
+            width: 620px; /* Expanded from 500px */
+            height: 520px;
+            background: white;
+            border: 12px solid transparent;
+            border-image: linear-gradient(135deg, #8a6d3b, #f9f295, #d4af37, #f9f295, #8a6d3b) 1;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* Top Header Badge */
+        .top-badge {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to bottom, #d4af37, #8a6d3b);
+            border: 2px solid #f9f295;
+            padding: 8px 30px;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+            white-space: nowrap;
+            font-size: 18px;
+            border-radius: 4px;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Social Icons Row */
+        .social-row {
+            display: flex;
+            justify-content: center;
+            gap: 18px; /* Slightly more gap for the wider space */
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .social-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+            border: 2px solid #f9f295;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .social-icon:hover { 
+            transform: scale(1.2) rotate(5deg); 
+        }
+
+        /* Specific Brand Colors */
+        .insta { background: var(--insta); }
+        .fb { background: var(--fb); }
+        .wa { background: var(--wa); }
+        .li { background: var(--li); }
+        .tg { background: var(--tg); }
+
+        /* Content Area - Now fits the wider aspect ratio */
+        .content-area {
+            flex: 1;
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 5px;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .content-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Bottom Glowing Text Section */
+        .bottom-banner {
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        .bottom-banner h2 {
+            margin: 0;
+            font-size: 32px; /* Increased size for the wider layout */
+            text-transform: uppercase;
+            color: white;
+            -webkit-text-stroke: 1.5px #d35400;
+            filter: drop-shadow(0 0 6px #e67e22);
+            background: linear-gradient(to bottom, #fff 40%, #ddd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="offer-popup">
+        <!-- Badge verbatim from image_8ed73f.jpg -->
+        <div class="top-badge">EXCLUSIVE OFFER ON EACH SHARE</div>
+
+        <!-- Social Icons Row -->
+        <div class="social-row">
+            <a href="#" class="social-icon insta" title="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-icon fb" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-icon wa" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="#" class="social-icon li" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" class="social-icon tg" title="Telegram"><i class="fab fa-telegram-plane"></i></a>
+        </div>
+
+        <!-- Image Content Container -->
+        <div class="content-area">
+             <span style="color: #bbb; font-size: 16px; font-style: italic;">[ Insert Main Image Here ]</span>
+        </div>
+
+        <!-- Bottom Text verbatim from image_8ed73f.jpg -->
+        <div class="bottom-banner">
+            <h2>Free Validity Extension <br> Upto 18 Month</h2>
+        </div>
+    </div>
+
+</body>
+</html>

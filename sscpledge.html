@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand writing process</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
+            margin: 0;
+        }
+
+        /* --- HEADINGS --- */
+        .process-title {
+            color: #0000ff; /* Blue */
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .instruction-text {
+            color: #0000ff; /* Blue */
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        /* --- TEXT BOX CONTAINER --- */
+        .certification-box {
+            width: 80%;
+            max-width: 900px;
+            border: 2px solid #dcd6c5; /* Beige border */
+            padding: 20px;
+            margin-bottom: 30px;
+            background-color: #fff;
+        }
+
+        .cert-text {
+            font-size: 14px;
+            color: #000;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .cert-text:last-child {
+            margin-bottom: 0;
+        }
+
+        /* --- CONFIRMATION & BUTTON --- */
+        .confirmation-msg {
+            color: #ff0000; /* Red */
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .continue-btn {
+            background: linear-gradient(to bottom, #f0f0f0, #dcdcdc);
+            border: 1px solid #999;
+            padding: 5px 20px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            color: #000;
+            box-shadow: 1px 1px 1px #aaa;
+        }
+
+        .continue-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .continue-btn:active {
+            box-shadow: inset 1px 1px 1px #aaa;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="process-title">Hand writing process</div>
+
+    <div class="instruction-text">Write the following Certification statement in the space provided on the admit card.</div>
+
+    <div class="certification-box">
+        <p class="cert-text">
+            Believe in your preparation and stay confident, because every hour of hard work has strengthened you for this moment. Stay calm and focused during the exam, trust your knowledge, and manage your time wisely. Remember that this test is only a step in your journey, not the final destination. Give your best with honesty and determination, and success will follow.
+        </p>
+        <p class="cert-text">
+            अपनी तैयारी पर भरोसा रखें और आत्मविश्वास बनाए रखें, क्योंकि हर घंटे की मेहनत ने आपको इस पल के लिए मजबूत बनाया है। परीक्षा के दौरान शांत और एकाग्र रहें, अपने ज्ञान पर विश्वास रखें और समय का सदुपयोग करें। याद रखें कि यह परीक्षा आपकी यात्रा का सिर्फ एक पड़ाव है, मंजिल नहीं। ईमानदारी और दृढ़ संकल्प के साथ अपना सर्वश्रेष्ठ प्रदर्शन करें, सफलता अवश्य मिलेगी।
+        </p>
+    </div>
+
+    <div class="confirmation-msg">I hereby confirm that I have written the above text on the admit card.</div>
+
+    <button class="continue-btn" onclick="alert('Proceeding...')">Continue</button>
+
+</body>
+</html>
